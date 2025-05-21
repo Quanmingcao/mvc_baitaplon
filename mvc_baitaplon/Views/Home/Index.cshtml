@@ -1,0 +1,27 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<div class="container-fluid p-4">
+    <div class="row">
+        <div class="col-12">
+            @Html.Partial("_TrendingPartial")
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-8">
+            @Html.Partial("_TopArtistsPartial")
+            @{ Html.RenderAction("TopChartPartial", "Home"); }
+        </div>
+        <div class="col-lg-4">
+            @Html.Partial("_TopAlbumPartial")
+        </div>
+    </div>
+</div>
+
+<!-- Music Player luôn nằm dưới Layout -->

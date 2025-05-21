@@ -1,0 +1,14 @@
+﻿.navbar {
+    background-color: transparent !important; /* Làm nền trong suốt */
+    box-shadow: none; /* Loại bỏ bóng đổ (nếu có) */
+    border: none; /* Loại bỏ viền (nếu có) */
+}
+
+.navbar-light .navbar-toggler {
+    background-color: transparent; /* Đảm bảo nút menu không bị mất nền */
+}
+
+.navbar .btn,
+.navbar .form-control {
+    z-index: 1; /* Đảm bảo các nút và form tìm kiếm hiển thị phía trên */
+}
