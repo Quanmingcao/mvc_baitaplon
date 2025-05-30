@@ -1,0 +1,334 @@
+﻿@model mvc_baitaplon.Models.Collection
+@{
+    ViewBag.Title = "Chi tiết bộ sưu tập";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    var songs = ViewBag.Songs as List<mvc_baitaplon.Models.Song>;
+}
+
+<div class="container-fluid mt-4 text-white p-4 rounded" style="background-color: #1a1a1a;">
+    <h2 class="text-white mb-3"><i class="fas fa-list icon"></i> Bộ sưu tập: @Model.Name</h2>
+    <p class="text-muted" style="color: #aaaaaa;"><strong>Mô tả:</strong> @(Model.Description ?? "Không có mô tả")</p>
+    <hr style="border-color: #444444;">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-white m-0"><i class="fas fa-music icon"></i> Danh sách bài hát</h3>
+        <a href="@Url.Action("Deleted", "Songs")" class="btn btn-outline-light btn-custom">
+            <i class="fas fa-trash-alt me-2"></i> Recycle bin
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle" style="border-color: #2c2c2c;">
+            <thead class="table-dark text-center" style="color: #000000;">
+                <tr>
+                    <th scope="col">Ảnh bìa</th>
+                    <th scope="col">Tiêu đề</th>
+                    <th scope="col">Thể loại</th>
+                    <th scope="col">Thời lượng</th>
+                    <th scope="col">Likes</th>
+                    <th scope="col">Ngày phát hành</th>
+                    <th scope="col">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (songs != null && songs.Any())
+                {
+                    foreach (var song in songs)
+                    {
+                        <tr class="text-center">
+                            <td>
+                                @if (!string.IsNullOrEmpty(song.CoverImage))
+                                {
+                                    <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)" alt="Ảnh bìa @song.Title" class="img-fluid rounded cover-image-table" style="width: 50px; height: 50px;" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted" style="color: #aaaaaa;">Không có ảnh</span>
+                                }
+                            </td>
+                            <td>@song.Title</td>
+                            <td>@(song.Genre?.GenreName ?? "N/A")</td>
+                            <td>@(song.Duration)</td>
+                            <td>@(song.Likes.Count())</td>
+                            <td>@(song.UploadDate.HasValue ? song.UploadDate.Value.ToString("dd/MM/yyyy") : "N/A")</td>
+                            <td>
+                                <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                    <button type="button" class="btn btn-sm btn-outline-info btn-custom" data-bs-toggle="modal" data-bs-target="#playModal-@song.SongID">
+                                        <i class="fas fa-play"></i> Phát
+                                    </button>
+                                    @using (Html.BeginForm("ToggleLock", "Songs", FormMethod.Post, new { @class = "d-inline" }))
+                                    {
+                                        @Html.Hidden("Songid", song.SongID)
+                                        <button type="submit" class="btn btn-sm @(song.IsLocked == true ? "btn-outline-success" : "btn-outline-warning") btn-custom"
+                                                onclick="return confirm('@(song.IsLocked == true ? "Khôi phục bài hát này?" : "Khóa bài hát này?")');">
+                                            <i class="fas @(song.IsLocked == true ? "fa-unlock" : "fa-lock")"></i>
+                                            @(song.IsLocked == true ? "Mở khóa" : "Khóa")
+                                        </button>
+                                    }
+                                    @using (Html.BeginForm("SoftDelete", "Songs", FormMethod.Post, new { @class = "d-inline" }))
+                                    {
+                                        @Html.Hidden("Songid", song.SongID)
+                                        @Html.Hidden("Collectionid", Model.CollectionID)
+                                        <button type="submit" class="btn btn-sm btn-outline-danger btn-custom" onclick="return confirm('Xác nhận xóa bài hát @song.SongID này?');">
+                                            <i class="fas fa-trash-alt"></i> Xóa
+                                        </button>
+                                    }
+                                </div>
+
+                                <div class="modal fade" id="playModal-@song.SongID" tabindex="-1" aria-labelledby="playModalLabel-@song.SongID" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-md">
+                                        <div class="modal-content bg-dark text-white" style="background-color: #2c2c2c; border: 2px solid #1D1D32; border-radius: 12px;">
+                                            <div class="modal-header border-0" style="border-bottom: 1px solid #444444;">
+                                                <h5 class="modal-title" id="playModalLabel-@song.SongID">
+                                                    <i class="fas fa-play-circle icon me-2"></i> @song.Title
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body text-center p-4">
+                                                @if (!string.IsNullOrEmpty(song.CoverImage))
+                                                {
+                                                    <div class="mb-3">
+                                                        <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)" alt="Ảnh bìa @song.Title" class="img-fluid cover-image" style="width: 200px; height: 200px;" />
+                                                    </div>
+                                                }
+                                                <p class="mb-1"><strong>Tác giả:</strong> @(song.Account?.Username ?? "N/A")</p>
+                                                <p class="mb-3"><strong>Thời lượng:</strong> @(song.Duration)</p>
+
+                                                @if (!string.IsNullOrEmpty(song.FilePath))
+                                                {
+                                                    <div class="audio-player">
+                                                        <audio id="audio-@song.SongID" class="d-none">
+                                                            <source src="@Url.Content("~/Content/Upload/Music_file/" + song.FilePath)" type="audio/mpeg" />
+                                                            Trình duyệt của bạn không hỗ trợ audio.
+                                                        </audio>
+                                                        <div class="player-controls">
+                                                            <button class="btn btn-outline-light btn-custom play-pause" data-song-id="@song.SongID">
+                                                                <i class="fas fa-play"></i>
+                                                            </button>
+                                                            <div class="progress-container">
+                                                                <div class="progress-bar" id="progress-@song.SongID"></div>
+                                                            </div>
+                                                            <span class="time-display" id="time-@song.SongID">0:00 / @(song.Duration)</span>
+                                                            <div class="volume-control">
+                                                                <i class="fas fa-volume-up icon"></i>
+                                                                <input type="range" class="volume-slider" id="volume-@song.SongID" min="0" max="1" step="0.01" value="1" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <p class="text-muted" style="color: #aaaaaa;">Không có file âm thanh cho bài hát này.</p>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted" style="color: #aaaaaa;">Không có bài nhạc nào trong bộ sưu tập này.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <a href="@Url.Action("Index")" class="btn btn-outline-light btn-custom">
+            <i class="fas fa-arrow-left icon"></i> Quay lại danh sách
+        </a>
+    </div>
+</div>
+
+<style>
+    .cover-image-table {
+        width: 50px;
+        height: 50px;
+        border: 2px solid #1D1D32;
+        border-radius: 50%;
+        object-fit: cover;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .cover-image-table:hover {
+        transform: scale(1.1);
+        border-color: #e6c200;
+    }
+
+    .modal-content.bg-dark {
+        background-color: #2c2c2c !important;
+        border: 2px solid #1D1D32;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #444444;
+    }
+
+    .modal-title {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .btn-close.btn-close-white {
+        filter: invert(1);
+    }
+
+    .audio-player {
+        background-color: #1a1a1a;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .player-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .play-pause {
+        color: #ffffff;
+        border-color: #1D1D32;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .play-pause:hover {
+        background-color: #1D1D32;
+        color: #000000;
+    }
+
+    .progress-container {
+        flex: 1;
+        background-color: #444444;
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+        min-width: 150px;
+    }
+
+    .progress-bar {
+        background-color: #1D1D32;
+        width: 0;
+        height: 100%;
+        transition: width 0.1s linear;
+    }
+
+    .time-display {
+        color: #ffffff;
+        font-size: 0.9rem;
+        min-width: 80px;
+    }
+
+    .volume-control {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .volume-slider {
+        width: 80px;
+        accent-color: #1D1D32; /* Gold slider */
+    }
+
+    .cover-image {
+        border: 2px solid #1D1D32;
+        border-radius: 50%;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .cover-image:hover {
+        transform: scale(1.05);
+        border-color: #e6c200;
+    }
+
+    @@media (max-width: 768px) {
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .modal-dialog {
+            margin: 1rem;
+        }
+
+        .cover-image {
+            max-width: 150px;
+        }
+
+        .player-controls {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .progress-container {
+            min-width: 100%;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.play-pause').forEach(button => {
+                const songId = button.getAttribute('data-song-id');
+                const audio = document.getElementById(`audio-${songId}`);
+                const playPauseIcon = button.querySelector('i');
+                const progressBar = document.getElementById(`progress-${songId}`);
+                const timeDisplay = document.getElementById(`time-${songId}`);
+                const volumeSlider = document.getElementById(`volume-${songId}`);
+
+                button.addEventListener('click', () => {
+                    if (audio.paused) {
+                        audio.play();
+                        playPauseIcon.classList.remove('fa-play');
+                        playPauseIcon.classList.add('fa-pause');
+                    } else {
+                        audio.pause();
+                        playPauseIcon.classList.remove('fa-pause');
+                        playPauseIcon.classList.add('fa-play');
+                    }
+                });
+
+                audio.addEventListener('timeupdate', () => {
+                    const progress = (audio.currentTime / audio.duration) * 100;
+                    progressBar.style.width = `${progress}%`;
+                    const current = formatTime(audio.currentTime);
+                    const duration = formatTime(audio.duration);
+                    timeDisplay.textContent = `${current} / ${duration || '0:00'}`;
+                });
+
+                volumeSlider.addEventListener('input', () => {
+                    audio.volume = volumeSlider.value;
+                });
+
+                audio.addEventListener('ended', () => {
+                    playPauseIcon.classList.remove('fa-pause');
+                    playPauseIcon.classList.add('fa-play');
+                    progressBar.style.width = '0%';
+                    timeDisplay.textContent = `0:00 / ${formatTime(audio.duration) || '0:00'}`;
+                });
+
+                function formatTime(seconds) {
+                    if (isNaN(seconds)) return '0:00';
+                    const mins = Math.floor(seconds / 60);
+                    const secs = Math.floor(seconds % 60);
+                    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                }
+            });
+        });
+    </script>
+}

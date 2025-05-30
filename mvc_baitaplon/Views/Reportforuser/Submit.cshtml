@@ -1,0 +1,26 @@
+﻿@model mvc_baitaplon.Models.Report
+
+@{
+    ViewBag.Title = "Submit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Gửi Báo Cáo</h2>
+
+@using (Html.BeginForm("Submit", "Report", FormMethod.Post, new { @id = "reportForm" }))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.HiddenFor(model => model.ReportedSongID)
+    @Html.HiddenFor(model => model.ReportedAccountID)
+    @Html.HiddenFor(model => model.ReportedCollectionID)
+
+    <div class="form-group">
+        <label for="Reason">Lý do báo cáo</label>
+        @Html.TextAreaFor(model => model.Reason, new { @class = "form-control", rows = 4, required = "required" })
+        @Html.ValidationMessageFor(model => model.Reason, "", new { @class = "text-danger" })
+    </div>
+
+    <button type="submit" class="btn btn-danger">Gửi Báo Cáo</button>
+}
+

@@ -1,0 +1,181 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+<style>
+    body {
+        background-color: #1e1e2f;
+        color: #f5f5f5;
+    }
+
+    h2, h4 {
+        color: #FFD700;
+    }
+
+    .card {
+        background-color: #2C2C2C;
+        color: #f5f5f5;
+        border: none;
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+    }
+
+    .card h5 {
+        color: #FFD700;
+        font-weight: bold;
+    }
+
+    hr {
+        border-top: 1px solid #FFD700;
+    }
+
+    canvas {
+        background-color: #2C2C2C;
+        padding: 1rem;
+        border-radius: 10px;
+    }
+</style>
+
+<h2 class="mt-4">📊 Dashboard Thống kê</h2>
+
+<div class="row text-center mt-4">
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm">
+            <h5>👤 Người dùng</h5>
+            <h3 id="totalUsers">--</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm">
+            <h5>🎵 Bài hát</h5>
+            <h3 id="totalSongs">--</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm">
+            <h5>📁 Bộ sưu tập</h5>
+            <h3 id="totalCollections">--</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm">
+            <h5>🚨 Báo cáo chưa xem</h5>
+            <h3 id="pendingReports">--</h3>
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<h4 class="mt-5">📈 Lượt nghe gần đây (30 ngày)</h4>
+<canvas id="chartListenPerDay" height="100"></canvas>
+
+<h4 class="mt-5">📅 Lượt nghe theo tháng</h4>
+<canvas id="chartListenPerMonth" height="100"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.getElementById('totalUsers').textContent = '@ViewBag.totalUsers';
+    document.getElementById('totalSongs').textContent = '@ViewBag.totalSongs';
+    document.getElementById('totalCollections').textContent = '@ViewBag.totalCollection';
+    document.getElementById('pendingReports').textContent = '@ViewBag.report';
+
+    fetch('@Url.Action("ListenPerDay", "Dashboard")')
+        .then(res => res.json())
+        .then(data => {
+            const labels = data.map(x => x.Date).reverse();
+            const counts = data.map(x => x.Count).reverse();
+
+            new Chart(document.getElementById('chartListenPerDay'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Lượt nghe mỗi ngày',
+                        data: counts,
+                        backgroundColor: 'rgba(255, 215, 0, 0.2)',
+                        borderColor: 'rgba(255, 215, 0, 1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#fff'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#2C2C2C',
+                            titleColor: '#FFD700',
+                            bodyColor: '#fff'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#fff' },
+                            grid: { color: '#444' }
+                        },
+                        y: {
+                            ticks: { color: '#fff' },
+                            grid: { color: '#444' }
+                        }
+                    }
+                }
+            });
+        });
+
+    fetch('@Url.Action("ListenPerMonth", "Dashboard", new { area = "Admin" })')
+        .then(res => res.json())
+        .then(data => {
+            const labels = data.map(x => `${x.Month}/${x.Year}`).reverse();
+            const counts = data.map(x => x.Count).reverse();
+
+            new Chart(document.getElementById('chartListenPerMonth'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Lượt nghe theo tháng',
+                        data: counts,
+                        backgroundColor: 'rgba(255, 215, 0, 0.6)',
+                        borderColor: 'rgba(255, 215, 0, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#fff'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#2C2C2C',
+                            titleColor: '#FFD700',
+                            bodyColor: '#fff'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#fff' },
+                            grid: { color: '#444' }
+                        },
+                        y: {
+                            ticks: { color: '#fff' },
+                            grid: { color: '#444' }
+                        }
+                    }
+                }
+            });
+        });
+</script>

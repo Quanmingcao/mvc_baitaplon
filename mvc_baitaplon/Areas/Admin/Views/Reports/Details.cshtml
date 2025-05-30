@@ -1,0 +1,208 @@
+﻿@model mvc_baitaplon.Models.Report
+@{
+    ViewBag.Title = "Chi tiết báo cáo";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid mt-4 text-white p-4 rounded" style="background-color: #1a1a1a;">
+    <h2 class="text-white mb-4"><i class="fas fa-exclamation-circle icon"></i> Chi tiết báo cáo</h2>
+
+    <div class="card mb-4" style="background-color: #2c2c2c; border-color: #444444;">
+        <div class="card-body">
+            <h4 class="card-title text-white"><i class="fas fa-info-circle icon"></i> Thông tin báo cáo</h4>
+            <hr style="border-color: #444444;">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Mã báo cáo:</strong> @(Model?.ReportID.ToString() ?? "N/A")</p>
+                    <p><strong>Lý do:</strong> @(Model?.Reason ?? "Không có lý do")</p>
+                    <p><strong>Người báo cáo:</strong> @(Model?.Account?.Username ?? "N/A")</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Ngày tạo:</strong> @(Model?.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</p>
+                    <p>
+                        <strong>Trạng thái:</strong>
+                        @if (string.Equals(Model?.Status, "Chưa xử lý", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half me-1"></i> Chưa xử lý</span>
+                        }
+                        else if (string.Equals(Model?.Status, "Đã xử lý", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Đã xử lý</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@(Model?.Status ?? "N/A")</span>
+                        }
+                    </p>
+                </div>
+            </div>
+            <div class="mt-3">
+                @using (Html.BeginForm("Process", "Reports", FormMethod.Post, new { @class = "d-inline" }))
+                {
+                    @Html.Hidden("id", Model?.ReportID)
+                    <button type="submit" class="btn btn-outline-success btn-custom" onclick="return confirm('Xác nhận xử lý báo cáo này?');">
+                        <i class="fas fa-check"></i> Xử lý báo cáo
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (Model?.Song != null)
+    {
+        <div class="card mb-4" style="background-color: #2c2c2c; border-color: #444444;">
+            <div class="card-body">
+                <h4 class="card-title text-white"><i class="fas fa-music icon"></i> Thông tin bài hát</h4>
+                <hr style="border-color: #444444;">
+                @if (!string.IsNullOrEmpty(Model.Song.CoverImage))
+                {
+                    <div class="mb-3">
+                        <p><strong>Ảnh bìa:</strong></p>
+                        <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + Model.Song.CoverImage)" alt="Ảnh bìa bài hát" class="img-fluid rounded cover-image" style="max-width: 300px;" />
+                    </div>
+                }
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Tên bài hát:</strong> @(Model.Song.Title ?? "N/A")</p>
+                        <p><strong>Tác giả:</strong> @(Model.Song.Account?.Username ?? "N/A")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Ngày phát hành:</strong> @(Model.Song.UploadDate?.ToString("dd/MM/yyyy") ?? "N/A")</p>
+                        <p><strong>Thể loại:</strong> @(Model.Song.Genre?.GenreName ?? "N/A")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (Model?.Account1 != null)
+    {
+        <div class="card mb-4" style="background-color: #2c2c2c; border-color: #444444;">
+            <div class="card-body">
+                <h4 class="card-title text-white"><i class="fas fa-user icon"></i> Thông tin người dùng</h4>
+                <hr style="border-color: #444444;">
+                @if (!string.IsNullOrEmpty(Model.Account1.ProfileImage))
+                {
+                    <div class="mb-3">
+                        <p><strong>Ảnh đại diện:</strong></p>
+                        <img src="@Url.Content("~/Content/Upload/Image/ProfileImage/" + Model.Account1.ProfileImage)" alt="Ảnh đại diện" class="img-fluid rounded cover-image" style="max-width: 300px;" />
+                    </div>
+                }
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Tên tài khoản:</strong> @(Model.Account1.Username ?? "N/A")</p>
+                        <p><strong>Email:</strong> <a href="mailto:@(Model.Account1.Email ?? "")" style="color: #FFD700;">@(Model.Account1.Email ?? "N/A")</a></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Ngày đăng ký:</strong> @(Model.Account1.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A")</p>
+                        <p>
+                            <strong>Trạng thái:</strong>
+                            @if (Model.Account1.IsLocked == true)
+                            {
+                                <span class="badge bg-danger"><i class="fas fa-lock me-1"></i> Bị khóa</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success"><i class="fas fa-unlock me-1"></i> Hoạt động</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (Model?.Collection != null)
+    {
+        <div class="card mb-4" style="background-color: #2c2c2c; border-color: #444444;">
+            <div class="card-body">
+                <h4 class="card-title text-white"><i class="fas fa-list icon"></i> Thông tin bộ sưu tập</h4>
+                <hr style="border-color: #444444;">
+                @if (!string.IsNullOrEmpty(Model.Collection.CoverImage))
+                {
+                    <div class="mb-3">
+                        <p><strong>Ảnh bìa:</strong></p>
+                        <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Collection/" + Model.Collection.CoverImage)" alt="Ảnh bìa bộ sưu tập" class="img-fluid rounded cover-image" style="max-width: 300px;" />
+                    </div>
+                }
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Tên bộ sưu tập:</strong> @(Model.Collection.Name ?? "N/A")</p>
+                        <p><strong>Mô tả:</strong> @(Model.Collection.Description ?? "Không có mô tả")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Ngày tạo:</strong> @(Model.Collection.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning text-dark" style="background-color: #ffc107; border-color: #e6b800;">
+            <i class="fas fa-exclamation-triangle me-2"></i> Không tìm thấy thông tin chi tiết phù hợp cho loại báo cáo này.
+        </div>
+    }
+
+    <div class="mt-4">
+        <a href="@Url.Action("Index", "Reports")" class="btn btn-outline-light btn-custom">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại danh sách
+        </a>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-outline-success, .btn-outline-light {
+        color: #ffffff; /* White text for buttons */
+        border-color: #444444;
+    }
+
+    .btn-outline-success:hover {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .btn-outline-light:hover {
+        background-color: #FFD700; /* Gold on hover */
+        color: #000000;
+        border-color: #FFD700;
+    }
+
+    .icon {
+        color: #FFD700;
+    }
+
+    .text-muted {
+        color: #aaaaaa !important;
+    }
+
+    a {
+        color: #FFD700;
+    }
+
+    a:hover {
+        color: #e6c200;
+    }
+
+    .cover-image {
+        border: 2px solid #FFD700;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .cover-image:hover {
+        transform: scale(1.05);
+        border-color: #e6c200;
+    }
+
+    hr {
+        border-color: #444444;
+    }
+
+    .text-white, .card-body p, .card-title {
+        color: #ffffff !important;
+    }
+
+</style>

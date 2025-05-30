@@ -12,22 +12,14 @@ namespace mvc_baitaplon.Models
         [Key]
         public int HistoryID { get; set; }
 
-        public int UserID { get; set; }
+        public int AccountID { get; set; }
 
         public int SongID { get; set; }
 
         public DateTime? ListenDate { get; set; }
 
-        public virtual Songs Songs { get; set; }
+        public virtual Account Account { get; set; }
 
-        public virtual Songs Songs1 { get; set; }
-
-        public virtual Songs Songs2 { get; set; }
-
-        public virtual Users Users { get; set; }
-
-        public virtual Users Users1 { get; set; }
-
-        public virtual Users Users2 { get; set; }
+        public virtual Song Song { get; set; }
     }
 }

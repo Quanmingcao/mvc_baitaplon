@@ -1,0 +1,115 @@
+﻿@model PagedList.IPagedList<mvc_baitaplon.Models.Model_View.AccountViewModel>
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "Quản lý người dùng";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid mt-4 text-light p-4 rounded" style="background-color: #1a1a1a;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-light m-0"><i class="fas fa-users icon"></i> Danh sách người dùng</h2>
+        @using (Html.BeginForm("Index", "User", FormMethod.Get))
+        {
+            <div class="d-flex gap-2">
+                <div class="col-md-6, width: 300px;">
+                    @Html.TextBox("searchString", Request.QueryString["searchString"], new { @class = "form-control", placeholder = "Tìm kiếm" })
+                </div>
+                <button type="submit" class="btn btn-outline-light btn-custom">
+                    <i class="fas fa-search"></i>
+                </button>
+                <a href="@Url.Action("Deleted", "User")" class="btn btn-outline-light btn-custom ">
+                    <i class="fas fa-trash-alt me-2"></i>
+                </a>
+            </div>
+        }
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle">
+            <thead class="table-primary table-dark text-center">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Tài khoản</th>
+                    <th scope="col">Họ tên</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Ngày tạo</th>
+                    <th scope="col">Quyền</th>
+                    <th scope="col">Trạng thái</th>
+                    <th scope="col">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr class="text-center">
+                        <td>@user.AccountID</td>
+                        <td>@user.Username</td>
+                        <td>@user.Fullname</td>
+                        <td><a href="mailto:@user.Email" style="color: #1D1D32;">@user.Email</a></td>
+                        <td>@(user.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                        <td>
+                            @using (Html.BeginForm("ChangeRole", "Accounts", FormMethod.Post, new { @class = "d-inline" }))
+                            {
+                                @Html.Hidden("id", user.AccountID)
+                                @Html.DropDownList("role", new SelectList(new[] {
+                                    new { Text = "User", Value = "false" },
+                                    new { Text = "Admin", Value = "true" }
+                                }, "Value", "Text", user.Role?.ToString().ToLower()), new
+                                {
+                                    @class = "form-select form-select-sm w-auto bg-dark text-light border-dark",
+                                    style = "border-color: #444444;",
+                                    onchange = "this.form.submit();"
+                                })
+                            }
+                        </td>
+                        <td>
+                            @if (user.IsLocked == true)
+                            {
+                                <span class="badge bg-danger"><i class="fas fa-lock me-1"></i> Bị khóa</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success"><i class="fas fa-unlock me-1"></i> Hoạt động</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                @using (Html.BeginForm("ToggleLock", "User", FormMethod.Post, new { @class = "d-inline" }))
+                                {
+                                    @Html.Hidden("id", user.AccountID)
+                                    <button type="submit" class="btn btn-sm @(user.IsLocked == true ? "btn-outline-success" : "btn-outline-warning") btn-custom"
+                                            onclick="return confirm('@(user.IsLocked == true ? "Khôi phục người dùng này?" : "Khóa người dùng này?")');">
+                                        <i class="fas @(user.IsLocked == true ? "fa-unlock" : "fa-lock")"></i>
+                                        @(user.IsLocked == true ? "Mở khóa" : "Khóa")
+                                    </button>
+                                }
+                                <a href="@Url.Action("Details", "User", new { id = user.AccountID })" class="btn btn-sm btn-outline-primary btn-custom">
+                                    <i class="fas fa-info-circle"></i> Chi tiết
+                                </a>
+                                @using (Html.BeginForm("SoftDelete", "User", FormMethod.Post, new { @class = "d-inline" }))
+                                {
+                                    @Html.Hidden("id", user.AccountID)
+                                    <button type="submit" class="btn btn-sm btn-outline-danger btn-custom" onclick="return confirm('Xác nhận xóa người dùng này?');">
+                                        <i class="fas fa-trash-alt"></i> Xóa
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-end mt-4">
+        @Html.PagedListPager(
+            Model,
+            page => Url.Action("Index", new { page }),
+            new PagedListRenderOptions
+            {
+                UlElementClasses = new[] { "pagination" },
+                LiElementClasses = new[] { "page-item" },
+            }
+        )
+    </div>
+</div>

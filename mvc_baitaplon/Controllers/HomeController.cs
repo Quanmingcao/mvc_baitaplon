@@ -1,47 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.UI;
 using mvc_baitaplon.Models;
+using mvc_baitaplon.Models.Model_View;
 
 namespace mvc_baitaplon.Controllers
 {
     public class HomeController : Controller
     {
-        private musicweb db = new musicweb();
+        private Model_Music db = new Model_Music();
 
+        [CustomAuthorizeAttribute]
         public ActionResult Index()
         {
-            // Có thể lấy dữ liệu Trending, TopArtist, TopAlbum ở đây hoặc từng partial
-            return View();
+            int pageSize = 6;
+            int totalSongs = db.Songs.Count();
+            int totalPages = (int)Math.Ceiling((double)totalSongs / pageSize);
+
+            var songs = db.Songs
+                .OrderByDescending(s => s.UploadDate)
+                .Include(a => a.Account)
+                .AsQueryable();
+
+
+            return View(songs);
         }
 
-        public ActionResult TrendingPartial()
-        {
-            var trendingSong = db.Songs.OrderByDescending(s => s.UploadDate).FirstOrDefault();
-            return PartialView("_TrendingPartial", trendingSong);
-        }
 
-        public ActionResult TopArtistsPartial()
-        {
-            var topArtists = db.Artists.Take(4).ToList();
-            return PartialView("_TopArtistsPartial", topArtists);
-        }
 
-        public ActionResult TopAlbumPartial()
-        {
-            var topAlbum = db.Albums.OrderByDescending(a => a.ReleaseDate).FirstOrDefault();
-            return PartialView("_TopAlbumPartial", topAlbum);
-        }
 
-        public ActionResult TopChartPartial()
-        {
-            var topSongs = db.Songs
-                    .OrderByDescending(s => s.Views) // Ưu tiên bài nhiều lượt xem
-                    .Take(4)
-                    .ToList();
-            return PartialView("_TopChartPartial", topSongs);
-        }
     }
 }

@@ -1,0 +1,206 @@
+﻿@using System.Web.Mvc
+@{
+    Layout = null;
+    var title = ViewBag.Title ?? "Admin";
+}
+
+@functions {
+    public string IsActive(string ctrl, string act = null)
+    {
+        var routeData = ViewContext.RouteData;
+        var currentController = routeData.Values["controller"]?.ToString();
+        var currentAction = routeData.Values["action"]?.ToString();
+
+        bool controllerMatch = string.Equals(currentController, ctrl, StringComparison.OrdinalIgnoreCase);
+        bool actionMatch = string.IsNullOrEmpty(act) || string.Equals(currentAction, act, StringComparison.OrdinalIgnoreCase);
+
+        return controllerMatch && actionMatch ? "active" : "";
+    }
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>@title - Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet" />
+    <link href="~/Content/Styles/admin.css" rel="stylesheet" />
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #1a1a1a;
+            color: #f8f8f8;
+        }
+
+        .wrapper {
+            flex: 1;
+            display: flex;
+            min-height: calc(100vh - 60px - 50px);
+        }
+
+        #sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            background: #2c2c2c;
+            color: #f8f8f8;
+            height: calc(100vh - 60px);
+            position: fixed;
+            top: 60px;
+            padding-top: 1rem;
+            z-index: 1000;
+        }
+
+            #sidebar .logo {
+                font-size: 1.5rem;
+                font-weight: bold;
+                padding: 1rem;
+                text-align: center;
+                color: #1D1D32;
+                border-bottom: 1px solid #444444;
+            }
+
+            #sidebar .nav-link {
+                color: #aaaaaa;
+                padding: 0.75rem 1.5rem;
+                display: flex;
+                align-items: center;
+                font-size: 0.95rem;
+            }
+
+                #sidebar .nav-link i {
+                    margin-right: 0.75rem;
+                    width: 20px;
+                    text-align: center;
+                    color: #1D1D32;
+                }
+
+                #sidebar .nav-link:hover,
+                #sidebar .nav-link.active {
+                    background-color: #3a3a3a;
+                    color: #1D1D32;
+                    border-left: 3px solid #1D1D32;
+                }
+
+        .content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+            padding-top: 70px;
+            padding-bottom: 70px;
+            min-height: calc(100vh - 60px - 50px);
+            overflow-y: auto;
+            background: #1a1a1a;
+        }
+
+        .navbar {
+            height: 60px;
+            background-color: #2c2c2c;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            z-index: 1100;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: #1D1D32 !important;
+        }
+
+        .navbar-nav .nav-link {
+            color: #aaaaaa;
+        }
+
+            .navbar-nav .nav-link:hover {
+                color: #1D1D32;
+            }
+
+            .navbar-nav .nav-link i {
+                color: #1D1D32;
+            }
+
+        footer {
+            height: 50px;
+            background-color: #2c2c2c;
+            border-top: 1px solid #444444;
+            color: #aaaaaa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            z-index: 900;
+            position: relative;
+        }
+
+            footer .text-muted {
+                color: #aaaaaa !important;
+            }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg px-4 fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="@Url.Action("Index", "Home", new { area = "Admin" })">
+                <img class="icon-link me-2" src="~/Content/Upload/Image/Icon/wave-sound.png" alt="My Music Logo" />
+                <span>My Music Admin</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link d-flex align-items-center" href="/">
+                        <i class="fas fa-home me-1"></i> Trang chính
+                    </a>
+                    <a class="nav-link d-flex align-items-center" href="@Url.Action("Logout", "Account", new { area = "" })">
+                        <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="wrapper">
+        <nav id="sidebar">
+            <div class="logo">My Music</div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link @IsActive("Dashboard")" href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">
+                        <i class="fas fa-home"></i> Trang chủ
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @IsActive("User")" href="@Url.Action("Index", "User", new { area = "Admin" })">
+                        <i class="fas fa-music"></i> Quản lý Người dùng
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @IsActive("Genres")" href="@Url.Action("Index", "Genres", new { area = "Admin" })">
+                        <i class="fas fa-tags"></i> Quản lý thể loại
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @IsActive("Collections")" href="@Url.Action("Index", "Collections", new { area = "Admin" })">
+                        <i class="fas fa-list"></i> Quản lý Collections
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @IsActive("Reports")" href="@Url.Action("Index", "Reports", new { area = "Admin" })">
+                        <i class="fas fa-cog"></i> Báo cáo người dùng
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <main class="content">
+            @RenderBody()
+            @RenderSection("Scripts", required: false)
+        </main>
+    </div>
+
+    <footer class="text-center py-3">
+        <span class="text-muted">© @DateTime.Now.Year - My Music Admin System</span>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

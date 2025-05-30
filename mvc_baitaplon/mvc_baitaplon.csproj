@@ -51,6 +51,12 @@
       <HintPath>..\packages\EntityFramework.6.5.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="PagedList, Version=1.17.0.0, Culture=neutral, PublicKeyToken=abbb863e9397c5e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\PagedList.1.17.0.0\lib\net40\PagedList.dll</HintPath>
+    </Reference>
+    <Reference Include="PagedList.Mvc, Version=4.5.0.0, Culture=neutral, PublicKeyToken=abbb863e9397c5e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\PagedList.Mvc.4.5.0.0\lib\net40\PagedList.Mvc.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Web.DynamicData" />
@@ -97,46 +103,137 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Bootstrap5\bootstrap-grid.css" />
+    <Content Include="Content\Bootstrap5\bootstrap-grid.min.css" />
+    <Content Include="Content\Bootstrap5\bootstrap-grid.rtl.css" />
+    <Content Include="Content\Bootstrap5\bootstrap-grid.rtl.min.css" />
+    <Content Include="Content\Bootstrap5\bootstrap-reboot.css" />
+    <Content Include="Content\Bootstrap5\bootstrap-reboot.min.css" />
+    <Content Include="Content\Bootstrap5\bootstrap-reboot.rtl.css" />
+    <Content Include="Content\Bootstrap5\bootstrap-reboot.rtl.min.css" />
+    <Content Include="Content\Bootstrap5\bootstrap-utilities.css" />
+    <Content Include="Content\Bootstrap5\bootstrap-utilities.min.css" />
+    <Content Include="Content\Bootstrap5\bootstrap-utilities.rtl.css" />
+    <Content Include="Content\Bootstrap5\bootstrap-utilities.rtl.min.css" />
+    <Content Include="Content\Bootstrap5\bootstrap.css" />
+    <Content Include="Content\Bootstrap5\bootstrap.min.css" />
+    <Content Include="Content\Bootstrap5\bootstrap.rtl.css" />
+    <Content Include="Content\Bootstrap5\bootstrap.rtl.min.css" />
     <Content Include="Content\header.css" />
+    <Content Include="Content\PagedList.css" />
     <Content Include="Content\Site.css" />
+    <Content Include="Content\Styles\admin.css" />
+    <Content Include="Content\Upload\Image\CoverImage\Collection\boost.jpg" />
+    <Content Include="Content\Upload\Image\CoverImage\Collection\chill.jpg" />
+    <Content Include="Content\Upload\Image\CoverImage\Collection\jazz.jpg" />
+    <Content Include="Content\Upload\Image\CoverImage\Collection\kenricklamar.jpg" />
+    <Content Include="Content\Upload\Image\CoverImage\Collection\rock.jpg" />
+    <Content Include="Content\Upload\Image\CoverImage\Song\luther.jpg" />
+    <Content Include="Content\Upload\Image\Icon\music.png" />
+    <Content Include="Content\Upload\Image\Icon\wave-sound.png" />
+    <Content Include="Content\Upload\Image\ProfileImage\defaultavatar.jpg" />
+    <Content Include="Content\Upload\Music_file\luther.mp4" />
     <Content Include="Global.asax" />
+    <Content Include="JS\MusicPlayer.js" />
+    <Content Include="Scripts\bootstrap.bundle.js" />
+    <Content Include="Scripts\bootstrap.bundle.min.js" />
+    <Content Include="Scripts\bootstrap.esm.js" />
+    <Content Include="Scripts\bootstrap.esm.min.js" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
+    <Compile Include="Areas\Admin\Controllers\CollectionsController.cs" />
+    <Compile Include="Areas\Admin\Controllers\DashboardController.cs" />
+    <Compile Include="Areas\Admin\Controllers\GenresController.cs" />
+    <Compile Include="Areas\Admin\Controllers\ReportsController.cs" />
+    <Compile Include="Areas\Admin\Controllers\SongsController.cs" />
+    <Compile Include="Areas\Admin\Controllers\UserController.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\LibraryController.cs" />
+    <Compile Include="Controllers\CollectionsUserController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\testController.cs" />
+    <Compile Include="Controllers\LikesController.cs" />
+    <Compile Include="Controllers\ListenHistorysController.cs" />
+    <Compile Include="Controllers\ReportforuserController.cs" />
+    <Compile Include="Controllers\SongsController.cs" />
+    <Compile Include="Controllers\UserProfileController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\Accounts.cs" />
-    <Compile Include="Models\Admins.cs" />
-    <Compile Include="Models\Albums.cs" />
-    <Compile Include="Models\Artists.cs" />
-    <Compile Include="Models\Genres.cs" />
+    <Compile Include="Helpers\CustomAuthorizeAttribute.cs" />
+    <Compile Include="Helpers\Hashhelper.cs" />
+    <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\Collection.cs" />
+    <Compile Include="Models\CollectionLibrary.cs" />
+    <Compile Include="Models\CollectionSong.cs" />
+    <Compile Include="Models\CollectionType.cs" />
+    <Compile Include="Models\Genre.cs" />
+    <Compile Include="Models\Like.cs" />
     <Compile Include="Models\ListeningHistory.cs" />
-    <Compile Include="Models\musicweb.cs" />
-    <Compile Include="Models\Playlists.cs" />
-    <Compile Include="Models\PlaylistSongs.cs" />
-    <Compile Include="Models\Songs.cs" />
-    <Compile Include="Models\sysdiagrams.cs" />
-    <Compile Include="Models\Users.cs" />
+    <Compile Include="Models\Model_Music.cs" />
+    <Compile Include="Models\Model_View\AccountViewModel.cs" />
+    <Compile Include="Models\Model_View\CollectionViewModel.cs" />
+    <Compile Include="Models\Model_View\SongViewModel.cs" />
+    <Compile Include="Models\Model_View\SongWithGenreViewModel.cs" />
+    <Compile Include="Models\Report.cs" />
+    <Compile Include="Models\Song.cs" />
+    <Compile Include="Models\sysdiagram.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
+    <Content Include="Areas\Admin\Views\web.config" />
+    <Content Include="Areas\Admin\Views\Shared\_LayoutAdmin.cshtml" />
+    <Content Include="Areas\Admin\Views\_ViewStart.cshtml" />
+    <Content Include="Content\Bootstrap5\bootstrap.rtl.min.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap.rtl.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap.min.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap-utilities.rtl.min.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap-utilities.rtl.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap-utilities.min.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap-utilities.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap-reboot.rtl.min.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap-reboot.rtl.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap-reboot.min.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap-reboot.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap-grid.rtl.min.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap-grid.rtl.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap-grid.min.css.map" />
+    <Content Include="Content\Bootstrap5\bootstrap-grid.css.map" />
+    <Content Include="Areas\Admin\Views\Collections\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Collections\Details.cshtml" />
+    <Content Include="Areas\Admin\Views\Genres\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\User\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\User\Details.cshtml" />
+    <Content Include="Areas\Admin\Views\User\Deleted.cshtml" />
+    <Content Include="Areas\Admin\Views\Songs\Deleted.cshtml" />
+    <Content Include="Areas\Admin\Views\Collections\Deleted.cshtml" />
+    <Content Include="Areas\Admin\Views\Reports\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Reports\Details.cshtml" />
+    <Content Include="Areas\Admin\Views\Dashboard\Index.cshtml" />
     <None Include="packages.config" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Shared\sidebar.cshtml" />
-    <Content Include="Views\Shared\header.cshtml" />
-    <Content Include="Views\Shared\footer.cshtml" />
-    <Content Include="Views\test\Index.cshtml" />
+    <Content Include="Scripts\bootstrap.min.js.map" />
+    <Content Include="Scripts\bootstrap.js.map" />
+    <Content Include="Scripts\bootstrap.esm.min.js.map" />
+    <Content Include="Scripts\bootstrap.esm.js.map" />
+    <Content Include="Scripts\bootstrap.bundle.min.js.map" />
+    <Content Include="Scripts\bootstrap.bundle.js.map" />
+    <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Shared\_TrendingPartial.cshtml" />
-    <Content Include="Views\Shared\_TopArtistsPartial.cshtml" />
-    <Content Include="Views\Shared\_TopAlbumPartial.cshtml" />
-    <Content Include="Views\Shared\_TopChartPartial.cshtml" />
+    <Content Include="Views\Account\Register.cshtml" />
+    <Content Include="Views\CollectionsUser\Index.cshtml" />
+    <Content Include="Views\Library\Index.cshtml" />
+    <Content Include="Views\Shared\_MusicPlayer.cshtml" />
+    <Content Include="Views\Reportforuser\Submit.cshtml" />
+    <Content Include="Views\Songs\Index.cshtml" />
+    <Content Include="Views\UserProfile\Index.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -146,8 +243,14 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="images\" />
-    <Folder Include="Views\pages\" />
+    <Folder Include="Areas\Admin\Data\" />
+    <Folder Include="Areas\Admin\Views\Account\" />
+    <Folder Include="Areas\Admin\Views\Admin\" />
+    <Folder Include="Areas\Admin\Views\Artists\" />
+    <Folder Include="Views\CollectionLibrary\" />
+    <Folder Include="Views\Likes\" />
+    <Folder Include="Views\ListenHistorys\" />
+    <Folder Include="Views\User\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

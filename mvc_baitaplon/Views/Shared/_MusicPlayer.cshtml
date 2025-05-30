@@ -1,0 +1,128 @@
+﻿<div class="music-player fixed-bottom bg-dark text-white d-none" id="music-player">
+    <div class="container-fluid py-2 px-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+        <div class="d-flex align-items-center flex-grow-1 min-w-0" style="flex: 1 1 250px;">
+            <div class="cover-image me-3">
+                <img id="cover-image" src="" alt="Cover Image" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);">
+            </div>
+            <div class="song-details text-truncate">
+                <div id="song-title" class="song-title text-truncate"></div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-center flex-wrap gap-2" style="flex: 2 1 300px;">
+            <button class="btn btn-outline-light btn-sm" id="play-btn"><i class="fas fa-play"></i></button>
+            <span id="current-time" class="time-text">0:00</span>
+            <input type="range" id="progress-bar" min="0" value="0" step="1" class="progress-slider">
+            <span id="duration" class="time-text">0:00</span>
+            <button class="btn btn-outline-secondary btn-sm" id="loop-btn" title="Lặp lại"><i class="fas fa-retweet"></i></button>
+            <button class="btn btn-outline-danger  btn-sm" id="like-btn" title="Yêu thích"><i class="fas fa-heart"></i></button>
+        </div>
+
+        <div class="volume-control d-flex align-items-center gap-2" style="flex: 1 1 150px;">
+            <i class="fas fa-volume-up"></i>
+            <input type="range" min="0" max="100" value="0" id="vol" class="volume-slider">
+        </div>
+
+    </div>
+</div>
+
+
+<script src="~/JS/MusicPlayer.js"></script>
+
+<style>
+    .music-player {
+        height: 80px;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(90deg, #2a2a40, #3f3f5f);
+        border-top: 1px solid #4a4a6f;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        transition: opacity 0.3s ease;
+    }
+
+    .music-player.d-none {
+        opacity: 0;
+    }
+
+    .music-player.active {
+        opacity: 1;
+    }
+
+    .song-info {
+        gap: 1rem;
+    }
+
+    .song-details {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .song-title {
+        color: #d4c4e8;
+        font-size: 1rem;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+
+    .player-controls {
+        gap: 1.5rem;
+    }
+
+    .btn-outline-light,
+    .btn-outline-secondary,
+    .btn-outline-danger {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.9rem;
+        border: none; 
+        background: none; 
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    .btn-outline-light:hover {
+        background-color: #d4c4e8;
+        color: #2a2a40;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #b19cd9;
+        color: #2a2a40;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #ff6b6b;
+        color: #2a2a40;
+    }
+
+    .progress-slider {
+        width: 300px;
+        accent-color: #6b48ff;
+        cursor: pointer;
+    }
+
+    .time-text {
+        color: #b19cd9;
+        font-size: 0.9rem;
+        min-width: 40px;
+        text-align: center;
+    }
+
+    .volume-control {
+        gap: 0.5rem;
+    }
+
+    .volume-slider {
+        width: 80px;
+        accent-color: #6b48ff;
+        cursor: pointer;
+    }
+
+    .fas {
+        font-size: 1rem;
+    }
+</style>

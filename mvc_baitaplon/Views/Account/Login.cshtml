@@ -1,0 +1,180 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Đăng nhập - My Music</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(to top, #101010, #574E4E);
+            font-family: 'Arial', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+            body::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.2"><path d="M0 50h10v-10h10v20h10v-30h10v40h10v-25h10v10h10v-20h10v30h10v-40h10v25h10v-10h10" stroke="%23ffffff" stroke-width="2" fill="none"/></svg>') repeat;
+                z-index: -1;
+            }
+
+        .login-box {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #574E4E;
+        }
+
+        .login-box::after {
+            content: '\f025';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            bottom: -40px;
+            left: -40px;
+            font-size: 140px;
+            color: rgba(87, 78, 78, 0.1);
+            transform: rotate(-45deg);
+        }
+
+        .login-box h2 {
+            color: #574E4E;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: bold;
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo img {
+            max-width: 140px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 1px solid #d3d3d3;
+            padding: 0.8rem;
+            font-size: 1rem;
+            background: #f7f7f7;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #574E4E;
+            box-shadow: 0 0 8px rgba(87, 78, 78, 0.4);
+        }
+
+        .form-label {
+            color: #574E4E;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-label i {
+            margin-right: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: #574E4E;
+            border: none;
+            padding: 0.8rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #3e3737;
+        }
+
+        .btn-primary i {
+            margin-right: 0.5rem;
+        }
+
+        .error-message {
+            color: #dc3545;
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="logo">
+            <img src="~/Content/Upload/Image/Icon/music.png"alt="My Music Logo"  />
+        </div>
+        <h2>Đăng nhập</h2>
+        @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { autocomplete = "off", @class = "needs-validation", novalidate = "" }))
+        {   
+                @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label class="form-label"><i class="fas fa-user"></i>Tên đăng nhập</label>
+                @Html.TextBox("username", null, new { @class = "form-control", placeholder = "Nhập tên đăng nhập", required = "required", autocomplete = "off" })
+                <div class="invalid-feedback">Vui lòng nhập tên đăng nhập.</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label"><i class="fas fa-lock"></i>Mật khẩu</label>
+                @Html.Password("password", null, new { @class = "form-control", placeholder = "Nhập mật khẩu", required = "required", autocomplete = "new-password" })
+                <div class="invalid-feedback">Vui lòng nhập mật khẩu.</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Đăng nhập</button>
+
+            if (!string.IsNullOrEmpty(ViewBag.Error as string))
+            {
+                <p class="error-message">@ViewBag.Error</p>
+            }
+        }
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script>
+        (function () {
+            'use strict';
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    </script>
+</body>
+</html>

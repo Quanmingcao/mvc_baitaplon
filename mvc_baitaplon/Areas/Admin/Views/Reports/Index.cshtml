@@ -1,0 +1,206 @@
+﻿@model IEnumerable<mvc_baitaplon.Models.Report>
+@{
+    ViewBag.Title = "Quản lý báo cáo";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid mt-4 text-light p-4 rounded" style="background-color: #1a1a1a;">
+    <div class="mb-5">
+        <h3 class="text-light mb-4"><i class="fas fa-music icon"></i> Báo cáo bài hát</h3>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th scope="col">Người báo cáo</th>
+                        <th scope="col">Bài hát</th>
+                        <th scope="col">Lý do</th>
+                        <th scope="col">Trạng thái</th>
+                        <th scope="col">Ngày tạo</th>
+                        <th scope="col">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any(r => r.ReportedSongID != null))
+                    {
+                        foreach (var item in Model.Where(r => r.ReportedSongID != null))
+                        {
+                            <tr class="text-center">
+                                <td>@(item.Account?.Username ?? "N/A")</td>
+                                <td>@(item.Song?.Title ?? "N/A")</td>
+                                <td>@(item.Reason ?? "Không có lý do")</td>
+                                <td>
+                                    @if (string.Equals(item.Status, "Chưa xem xét", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half me-1"></i> Chưa xử lý</span>
+                                    }
+                                    else if (string.Equals(item.Status, "Đã xem xét", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Đã xử lý</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@(item.Status ?? "N/A")</span>
+                                    }
+                                </td>
+                                <td>@(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
+                                <td>
+                                    <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                        <a href="@Url.Action("Details", "Reports", new { id = item.ReportID })" class="btn btn-sm btn-outline-primary btn-custom">
+                                            <i class="fas fa-info-circle"></i> Chi tiết
+                                        </a>
+                                        @using (Html.BeginForm("Process", "Reports", FormMethod.Post, new { @class = "d-inline" }))
+                                        {
+                                            @Html.Hidden("id", item.ReportID)
+                                            <button type="submit" class="btn btn-sm btn-outline-success btn-custom" onclick="return confirm('Xác nhận xử lý báo cáo này?');">
+                                                <i class="fas fa-check"></i> Xử lý
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted" style="color: #aaaaaa;">Không có báo cáo bài hát nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mb-5">
+        <h3 class="text-light mb-4"><i class="fas fa-user icon"></i> Báo cáo tài khoản</h3>
+
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th scope="col">Người báo cáo</th>
+                        <th scope="col">Tài khoản bị báo cáo</th>
+                        <th scope="col">Lý do</th>
+                        <th scope="col">Trạng thái</th>
+                        <th scope="col">Ngày tạo</th>
+                        <th scope="col">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any(r => r.ReportedAccountID != null))
+                    {
+                        foreach (var item in Model.Where(r => r.ReportedAccountID != null))
+                        {
+                            <tr class="text-center">
+                                <td>@(item.Account?.Username ?? "N/A")</td>
+                                <td>@(item.Account1?.Username ?? "N/A")</td>
+                                <td>@(item.Reason ?? "Không có lý do")</td>
+                                <td>
+                                    @if (string.Equals(item.Status, "Chưa xử lý", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half me-1"></i> Chưa xử lý</span>
+                                    }
+                                    else if (string.Equals(item.Status, "Đã xử lý", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Đã xử lý</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@(item.Status ?? "N/A")</span>
+                                    }
+                                </td>
+                                <td>@(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
+                                <td>
+                                    <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                        <a href="@Url.Action("Details", "Reports", new { id = item.ReportID })" class="btn btn-sm btn-outline-primary btn-custom">
+                                            <i class="fas fa-info-circle"></i> Chi tiết
+                                        </a>
+                                        @using (Html.BeginForm("Process", "Reports", FormMethod.Post, new { @class = "d-inline" }))
+                                        {
+                                            @Html.Hidden("id", item.ReportID)
+                                            <button type="submit" class="btn btn-sm btn-outline-success btn-custom" onclick="return confirm('Xác nhận xử lý báo cáo này?');">
+                                                <i class="fas fa-check"></i> Xử lý
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted" style="color: #aaaaaa;">Không có báo cáo tài khoản nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+            </div>
+
+            <div>
+                <h3 class="text-light mb-4"><i class="fas fa-list icon"></i> Báo cáo bộ sưu tập</h3>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle">
+                        <thead class="table-primary table-dark text-center">
+                            <tr>
+                                <th scope="col">Người báo cáo</th>
+                                <th scope="col">Bộ sưu tập</th>
+                                <th scope="col">Lý do</th>
+                                <th scope="col">Trạng thái</th>
+                                <th scope="col">Ngày tạo</th>
+                                <th scope="col">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Any(r => r.ReportedCollectionID != null))
+                            {
+                                foreach (var item in Model.Where(r => r.ReportedCollectionID != null))
+                                {
+                                    <tr class="text-center">
+                                        <td>@(item.Account?.Username ?? "N/A")</td>
+                                        <td>@(item.Collection?.Name ?? "N/A")</td>
+                                        <td>@(item.Reason ?? "Không có lý do")</td>
+                                        <td>
+                                            @if (string.Equals(item.Status, "Chưa xử lý", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half me-1"></i> Chưa xử lý</span>
+                                            }
+                                            else if (string.Equals(item.Status, "Đã xử lý", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Đã xử lý</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">@(item.Status ?? "N/A")</span>
+                                            }
+                                        </td>
+                                        <td>@(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
+                                        <td>
+                                            <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                                <a href="@Url.Action("Details", "Reports", new { id = item.ReportID })" class="btn btn-sm btn-outline-primary btn-custom">
+                                                    <i class="fas fa-info-circle"></i> Chi tiết
+                                                </a>
+                                                @using (Html.BeginForm("Process", "Reports", FormMethod.Post, new { @class = "d-inline" }))
+                                                {
+                                                    @Html.Hidden("id", item.ReportID)
+                                                    <button type="submit" class="btn btn-sm btn-outline-success btn-custom" onclick="return confirm('Xác nhận xử lý báo cáo này?');">
+                                                        <i class="fas fa-check"></i> Xử lý
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted" style="color: #aaaaaa;">Không có báo cáo bộ sưu tập nào.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>

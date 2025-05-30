@@ -1,0 +1,98 @@
+﻿@{
+    ViewBag.Title = "Thư viện của bạn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model IEnumerable<mvc_baitaplon.Models.CollectionLibrary>
+
+<h2 class="mb-4 text-center fw-bold text-light">🎵 Thư viện danh sách phát đã lưu</h2>
+
+@if (!Model.Any())
+{
+    <div class="empty-message">Bạn chưa lưu bất kỳ danh sách phát nào vào thư viện.</div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var col in Model)
+        {
+            <div class="col-md-4">
+                <a href="@Url.Action("Details", "Collections", new { id = col.CollectionID })" class="collection-card-link">
+                    <div class="collection-card">
+                        <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Collection/" + col.Collection.CoverImage)"
+                             alt="@col.Collection.Name"
+                             onerror="this.onerror=null;this.src='@Url.Content("~/images/plhld.jpg")';" />
+                        <div class="card-content">
+                            <h5 class="collection-name">@col.Collection.Name</h5>
+                            <p class="collection-description">@col.Collection.Description</p>
+                            <p class="collection-meta">
+                                Người tạo: <strong>@col.Collection.Account.Username</strong><br />
+                                Thể loại: <strong>@col.Collection.CollectionType.TypeName</strong><br />
+                                Ngày lưu: <strong>@col.SavedAt</strong>
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+}
+<style>
+    .collection-card-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .collection-card {
+        background: linear-gradient(135deg, #2a2a40, #3f3f5f);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: transform 0.2s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .collection-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .collection-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+    .card-content {
+        padding: 1rem;
+    }
+
+    .collection-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #d4c4e8;
+    }
+
+    .collection-description {
+        color: #b19cd9;
+        margin: 0.5rem 0;
+        min-height: 48px;
+    }
+
+    .collection-meta {
+        font-size: 0.9rem;
+        color: #aaa;
+    }
+
+    .empty-message {
+        background: linear-gradient(90deg, #2a2a40, #3f3f5f);
+        padding: 2rem;
+        color: #b19cd9;
+        font-size: 1.1rem;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        margin-top: 1rem;
+    }
+</style>

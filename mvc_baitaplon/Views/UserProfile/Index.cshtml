@@ -1,0 +1,313 @@
+﻿@model mvc_baitaplon.Models.Account
+
+@{
+    ViewBag.Title = "Bộ sưu tập của " + Model.Fullname;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="user-info-box">
+    <img class="user-avatar" src="@Url.Content("~/Content/Upload/Image/Profile/" + Model.ProfileImage)" alt="Profile Image" />
+
+    <div class="user-info-text">
+        <h2 class="user-fullname">@Model.Fullname</h2>
+        <p class="user-username">@Model.Username</p>
+        <p class="user-username">@Model.Email</p>
+
+        @if ((int)Session["accountId"] == Model.AccountID)
+        {
+            <button class="btn btn-outline-light mt-3 me-2" data-bs-toggle="modal" data-bs-target="#editInfoModal">Chỉnh sửa thông tin</button>
+            <button class="btn btn-outline-warning mt-3" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Đổi mật khẩu</button>
+        }
+    </div>
+</div>
+
+<hr class="text-light" />
+
+@if (!Model.Collections.Any())
+{
+    <div class="empty-message">Người dùng này chưa có bộ sưu tập nào.</div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var collection in Model.Collections)
+        {
+            <div class="col-md-4">
+                <a href="@Url.Action("Index", "Songs", new { id = collection.CollectionID })" class="collection-card-link">
+                    <div class="collection-card">
+                        <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Collection/" + collection.CoverImage)" alt="@collection.Name" />
+                        <div class="card-content">
+                            <h5 class="collection-name">@collection.Name</h5>
+                            <p class="collection-description">@collection.Description</p>
+                            <p class="collection-meta">Số bài hát: <strong>@collection.CollectionSongs.Count()</strong></p>
+                            <p class="collection-meta">Ngày tạo: <strong>@collection.CreatedAt</strong></p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+}
+
+<!-- Modal Chỉnh sửa thông tin -->
+<div class="modal fade" id="editInfoModal" tabindex="-1" aria-labelledby="editInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="editInfoModalLabel">Chỉnh sửa thông tin</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            @using (Html.BeginForm("Index", "UserProfile", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.HiddenFor(m => m.AccountID)
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="Fullname" class="form-label text-light fw-semibold">Họ và tên</label>
+                        <input type="text" name="Fullname" id="Fullname" class="form-control form-control-dark" value="@Model.Fullname" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Email" class="form-label text-light fw-semibold">Email</label>
+                        <input type="email" name="Email" id="Email" class="form-control form-control-dark" value="@Model.Email" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="ProfileImageFile" class="form-label text-light fw-semibold">Ảnh đại diện mới</label>
+                        <input type="file" name="ProfileImageFile" id="ProfileImageFile" class="form-control form-control-dark" />
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-success px-4">Lưu thay đổi</button>
+                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Hủy</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal Đổi mật khẩu -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="changePasswordModalLabel">Đổi mật khẩu</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            @using (Html.BeginForm("ChangePassword", "UserProfile", FormMethod.Post))
+            {
+                @Html.Hidden("AccountID", Model.AccountID)
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="CurrentPassword" class="form-label text-light fw-semibold">Mật khẩu hiện tại</label>
+                        <input type="password" name="CurrentPassword" id="CurrentPassword" class="form-control form-control-dark" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="NewPassword" class="form-label text-light fw-semibold">Mật khẩu mới</label>
+                        <input type="password" name="NewPassword" id="NewPassword" class="form-control form-control-dark" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="ConfirmNewPassword" class="form-label text-light fw-semibold">Xác nhận mật khẩu mới</label>
+                        <input type="password" name="ConfirmNewPassword" id="ConfirmNewPassword" class="form-control form-control-dark" required />
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-warning px-4">Xác nhận đổi mật khẩu</button>
+                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Hủy</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    /* User Info Box */
+    .user-info-box {
+        display: flex;
+        align-items: center;
+        background: linear-gradient(90deg, #1f2235, #2f3050);
+        padding: 1.25rem 2rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 12px rgb(0 0 0 / 0.35);
+    }
+
+    .user-avatar {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 1.5rem;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        border: 2px solid #7266f0;
+    }
+
+    .user-info-text {
+        color: #cbc7d9;
+        flex-grow: 1;
+    }
+
+    .user-fullname {
+        font-size: 1.9rem;
+        margin: 0;
+        font-weight: 700;
+        color: #ede9ff;
+    }
+
+    .user-username {
+        color: #a99fcb;
+        font-style: italic;
+        margin: 0.3rem 0 0;
+        font-weight: 500;
+    }
+
+    /* Collection Cards */
+    .collection-card-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .collection-card {
+        background: linear-gradient(135deg, #21253b, #2a2f52);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 6px 16px rgb(0 0 0 / 0.3);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .collection-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 14px 25px rgb(114 102 240 / 0.7);
+        }
+
+        .collection-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 2px solid #7266f0;
+        }
+
+    .card-content {
+        padding: 1rem 1.2rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .collection-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #ede9ff;
+        margin-bottom: 0.4rem;
+    }
+
+    .collection-description {
+        color: #a99fcb;
+        margin: 0 0 0.8rem;
+        min-height: 48px;
+        font-size: 0.95rem;
+        line-height: 1.2;
+    }
+
+    .collection-meta {
+        font-size: 0.85rem;
+        color: #8889aa;
+        margin: 0;
+    }
+
+    /* Empty Message */
+    .empty-message {
+        background: linear-gradient(90deg, #21253b, #2a2f52);
+        padding: 2rem;
+        color: #a99fcb;
+        font-size: 1.2rem;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 6px 16px rgb(0 0 0 / 0.3);
+        font-style: italic;
+    }
+
+    /* Modal form input (dark) */
+    .form-control-dark {
+        background-color: #2f3050;
+        border: 1px solid #7266f0;
+        color: #e3e0ff;
+        border-radius: 6px;
+        transition: border-color 0.3s ease;
+    }
+
+        .form-control-dark:focus {
+            background-color: #3a3c68;
+            border-color: #a992ff;
+            color: #fff;
+            box-shadow: 0 0 8px #a992ff88;
+            outline: none;
+        }
+
+    /* Modal label styling */
+    .form-label {
+        font-size: 0.9rem;
+    }
+
+    /* Buttons */
+    .btn-outline-light {
+        border-color: #7266f0;
+        color: #d6ceff;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-outline-light:hover {
+            background-color: #7266f0;
+            color: #fff;
+            border-color: #7266f0;
+            box-shadow: 0 0 10px #7266f0aa;
+        }
+
+    .btn-success {
+        background-color: #7266f0;
+        border-color: #7266f0;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-success:hover {
+            background-color: #5a4fcc;
+            border-color: #5a4fcc;
+            box-shadow: 0 0 12px #5a4fcccc;
+        }
+
+    .btn-warning {
+        background-color: #f5a623;
+        border-color: #f5a623;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        color: #3c2f0f;
+    }
+
+        .btn-warning:hover {
+            background-color: #c38316;
+            border-color: #c38316;
+            box-shadow: 0 0 12px #c3831699;
+            color: #fff;
+        }
+
+    .btn-outline-warning {
+        border-color: #f5a623;
+        color: #f5a623;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-outline-warning:hover {
+            background-color: #f5a623;
+            color: #3c2f0f;
+            border-color: #f5a623;
+            box-shadow: 0 0 10px #f5a623bb;
+        }
+</style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+}

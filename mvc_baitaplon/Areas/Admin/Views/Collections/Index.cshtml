@@ -1,0 +1,120 @@
+﻿@model  PagedList.IPagedList<mvc_baitaplon.Models.Collection>
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "Quản Lý Bộ Sưu Tập";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid mt-4 text-light p-4 rounded" style="background-color: #1a1a1a;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-light m-0"><i class="fas fa-list icon"></i> Quản Lý Bộ Sưu Tập</h2>
+        <div class="d-flex gap-2">
+            @using (Html.BeginForm("Index", "Collections", FormMethod.Get))
+            {
+                <div class="d-flex gap-2">
+                    <div class="col-md-6, width: 300px;">
+                        @Html.TextBox("searchString", Request.QueryString["searchString"], new { @class = "form-control", placeholder = "Tìm kiếm" })
+                    </div>
+                    <button type="submit" class="btn btn-outline-light btn-custom">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <a href="@Url.Action("Deleted")" class="btn btn-outline-light btn-custom">
+                        <i class="fas fa-trash-alt me-2"></i>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th scope="col">Người dùng</th>
+                    <th scope="col">Tên</th>
+                    <th scope="col">Thể loại</th>
+                    <th scope="col">Ảnh bìa</th>
+                    <th scope="col">Mô tả</th>
+                    <th scope="col">Ngày tạo</th>
+                    <th scope="col">Lượt báo cáo</th>
+                    <th scope="col">Public</th>
+                    <th scope="col">Hành Động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="text-center">
+                        <td>@Html.DisplayFor(modelItem => item.Account.Username)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                        <td>@Html.DisplayFor(modelItem => item.CollectionType.TypeName)</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.CoverImage))
+                            {
+                                <img src="~/Content/Upload/Image/CoverImage/Collection/@item.CoverImage" alt="Cover" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;" />
+                            }
+                            else
+                            {
+                                <span class="text-muted" style="color: #aaaaaa;">Không có ảnh</span>
+                            }
+                        </td>
+                        <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                        <td>@(item.CreatedAt.HasValue ? item.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</td>
+                        <td>@Html.DisplayFor(modelItem => item.reportcount)</td>
+                        <td>
+                            <span class="badge @(item.IsPublic.GetValueOrDefault() ? "bg-success" : "bg-secondary")">
+                                <i class="fas @(item.IsPublic.GetValueOrDefault() ? "fa-eye" : "fa-eye-slash") me-1"></i>
+                                @(item.IsPublic.GetValueOrDefault() ? "Hiển thị" : "Riêng tư")
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                <a href="@Url.Action("Details", new { id = item.CollectionID })" class="btn btn-sm btn-outline-primary btn-custom">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                                @using (Html.BeginForm("ToggleLock", "Collections", FormMethod.Post, new { @class = "d-inline" }))
+                                {
+                                    <input type="hidden" name="id" value="@item.CollectionID" />
+                                    <button type="submit" class="btn btn-sm @(item.IsLocked == true ? "btn-outline-success" : "btn-outline-warning") btn-custom"
+                                            onclick="return confirm('@(item.IsLocked == true ? "Khôi phục collection này?" : "Khóa collection này?")');">
+                                        <i class="fas @(item.IsLocked == true ? "fa-unlock" : "fa-lock")"></i>
+                                        @*@(item.IsLocked == true ? "Mở khóa" : "Khóa")*@
+                                    </button>
+                                }
+                                @using (Html.BeginForm("TogglePublic", "Collections", FormMethod.Post, new { @class = "d-inline" }))
+                                {
+                                    <input type="hidden" name="id" value="@item.CollectionID" />
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary btn-custom" title="Chuyển trạng thái công khai">
+                                        <i class="fas @(item.IsPublic.GetValueOrDefault() ? "fa-eye-slash" : "fa-eye")"></i>
+                                        @*@(item.IsPublic.GetValueOrDefault() ? "Ẩn" : "Hiện")*@
+                                    </button>
+                                }
+
+                                @using (Html.BeginForm("SoftDelete", "Collections", FormMethod.Post, new { @class = "d-inline" }))
+                                {
+                                    @Html.Hidden("Collectionid", item.CollectionID)
+                                    <button type="submit" class="btn btn-sm btn-outline-danger btn-custom" onclick="return confirm('Xác nhận xóa bộ sưu tập này?');">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-end mt-4">
+        @Html.PagedListPager(
+            Model,
+            page => Url.Action("Index", new { page }),
+            new PagedListRenderOptions
+            {
+                UlElementClasses = new[] { "pagination" },
+                LiElementClasses = new[] { "page-item" },
+            }
+        )
+    </div>
+</div>

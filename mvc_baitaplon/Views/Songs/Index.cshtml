@@ -1,0 +1,185 @@
+﻿@model IEnumerable<mvc_baitaplon.Models.CollectionSong>
+
+@{
+    var collection = Model.FirstOrDefault()?.Collection;
+    ViewBag.Title = collection?.Name ?? "Danh sách bài hát";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid p-0">
+    @if (collection != null)
+    {
+        <div class="collection-header">
+            <div class="collection-cover">
+                <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Collection/" + collection.CoverImage)" alt="Collection Cover" />
+            </div>
+            <div class="collection-details">
+                <h1 class="collection-title">@collection.Name</h1>
+                <p class="collection-description">@collection.Description</p>
+                <p class="collection-meta"><strong>Người tạo:</strong> <span>@collection.Account.Fullname</span></p>
+                <p class="collection-meta"><strong>Số bài hát:</strong> <span>@Model.Count()</span></p>
+                <p class="collection-meta"><strong>Ngày tạo:</strong> <span>@collection.CreatedAt</span></p>
+                <button class="btn btn-outline-warning btn-sm" title="Báo cáo">
+                    <i class="fas fa-flag"></i> Report
+                </button>
+
+                @using (Html.BeginForm("Addlibrary", "Library", FormMethod.Post, new { @class = "d-inline" }))
+                {
+                    @Html.Hidden("Collectionid", collection.CollectionID)
+                    <button class="btn btn-outline-success border-2 btn-sm" title="Thêm vào thư viện">
+                        <i class="bi bi-plus-circle"></i> Thêm
+                    </button>
+                }
+            </div>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="empty-message">Không có bài hát nào trong bộ sưu tập này.</div>
+    }
+    else
+    {
+        <table class="song-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tiêu đề</th>
+                    <th>Nghệ sĩ</th>
+                    <th>Lượt phát</th>
+                    <th>Thời lượng</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var index = 1;
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@index</td>
+                            <td class="title-cell">
+                                <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + item.Song.CoverImage)" alt="Cover" />
+                                <div class="title-info">
+                                    <span class="song-title">@item.Song.Title</span>
+                                </div>
+                            </td>
+                            <td>@item.Song.Account.Username</td>
+                            <td>@item.Song.Views</td>
+                            <td>@item.Song.Duration</td>
+                            <td>
+                                <button class="btn btn-outline-danger btn-sm like-btn" data-id="@collection.CollectionID">
+                                    <i class="fas fa-heart"></i> Like
+                                </button>
+                                <button class="btn btn-outline-warning btn-sm" title="Báo cáo">
+                                    <i class="fas fa-flag"></i> Report
+                                </button>
+                            </td>
+                        </tr>
+                        index++;
+                    }
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+
+<style>
+
+
+    .collection-header {
+        display: flex;
+        gap: 2rem;
+        background: linear-gradient(90deg, #2a2a40, #3f3f5f);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .collection-cover img {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .collection-details {
+        flex-grow: 1;
+    }
+
+    .collection-title {
+        color: #d4c4e8;
+        font-size: 2.2rem;
+        font-weight: 600;
+    }
+
+    .collection-description,
+    .collection-meta {
+        color: #b19cd9;
+        margin: 0.25rem 0;
+    }
+
+    .collection-meta span {
+        color: #d4c4e8;
+        font-weight: 500;
+    }
+
+    .empty-message {
+        text-align: center;
+        background: linear-gradient(90deg, #2a2a40, #3f3f5f);
+        padding: 2rem;
+        color: #b19cd9;
+        font-size: 1.1rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .song-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    .song-table thead {
+        color: #b19cd9;
+        text-align: left;
+        font-weight: 500;
+    }
+
+    .song-table th, .song-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #444;
+        vertical-align: middle;
+    }
+
+    .song-table tbody tr:hover {
+        background-color: #3a3a5f;
+        transition: background-color 0.2s;
+    }
+
+    .title-cell {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .title-cell img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .song-title {
+        color: #d4c4e8;
+        font-weight: 500;
+    }
+
+    .song-table td {
+        color: #d4c4e8;
+    }
+
+</style>
