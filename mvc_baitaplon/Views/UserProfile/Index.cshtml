@@ -5,49 +5,95 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="user-info-box">
-    <img class="user-avatar" src="@Url.Content("~/Content/Upload/Image/Profile/" + Model.ProfileImage)" alt="Profile Image" />
-
-    <div class="user-info-text">
-        <h2 class="user-fullname">@Model.Fullname</h2>
-        <p class="user-username">@Model.Username</p>
-        <p class="user-username">@Model.Email</p>
-
-        @if ((int)Session["accountId"] == Model.AccountID)
-        {
-            <button class="btn btn-outline-light mt-3 me-2" data-bs-toggle="modal" data-bs-target="#editInfoModal">Chỉnh sửa thông tin</button>
-            <button class="btn btn-outline-warning mt-3" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Đổi mật khẩu</button>
-        }
+<div class="container-fluid p-0">
+    <div class="user-info-box">
+        <img class="user-avatar" src="@Url.Content("~/Content/Upload/Image/ProfileImage/" + Model.ProfileImage)"
+             alt="Ảnh đại diện"
+             onerror="this.onerror=null;this.src='@Url.Content("~/Content/Upload/Image/ProfileImage/default.jpg")';" />
+        <div class="user-info-text">
+            <h2 class="user-fullname">@Model.Fullname</h2>
+            <p class="user-username">@Model.Username</p>
+            <p class="user-email">@Model.Email</p>
+            <div class="user-actions">
+                @if ((int)Session["accountId"] == Model.AccountID)
+                {
+                    <button class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#editInfoModal">
+                        <i class="fas fa-edit"></i> Chỉnh sửa thông tin
+                    </button>
+                    <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                        <i class="fas fa-lock"></i> Đổi mật khẩu
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-outline-warning btn-sm open-report-modal"
+                            data-bs-toggle="modal"
+                            data-bs-target="#reportModal"
+                            data-account-id="@Model.AccountID"
+                            title="Báo cáo người dùng">
+                        <i class="fas fa-flag"></i> Báo cáo
+                    </button>
+                }
+            </div>
+        </div>
     </div>
-</div>
 
-<hr class="text-light" />
+    <hr class="text-light" />
 
-@if (!Model.Collections.Any())
-{
-    <div class="empty-message">Người dùng này chưa có bộ sưu tập nào.</div>
-}
-else
-{
-    <div class="row g-4">
-        @foreach (var collection in Model.Collections)
-        {
-            <div class="col-md-4">
-                <a href="@Url.Action("Index", "Songs", new { id = collection.CollectionID })" class="collection-card-link">
-                    <div class="collection-card">
-                        <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Collection/" + collection.CoverImage)" alt="@collection.Name" />
-                        <div class="card-content">
-                            <h5 class="collection-name">@collection.Name</h5>
-                            <p class="collection-description">@collection.Description</p>
-                            <p class="collection-meta">Số bài hát: <strong>@collection.CollectionSongs.Count()</strong></p>
-                            <p class="collection-meta">Ngày tạo: <strong>@collection.CreatedAt</strong></p>
+    @if (!Model.Collections.Any())
+    {
+        <div class="empty-message">
+            <i class="fas fa-folder-open fa-2x mb-2"></i>
+            <p>Người dùng này chưa có bộ sưu tập nào.</p>
+            @if ((int)Session["accountId"] == Model.AccountID)
+            {
+                <a href="@Url.Action("AddCollection", "Collection")" class="btn btn-outline-light btn-sm">
+                    Tạo bộ sưu tập mới
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="collection-grid">
+            @if ((int)Session["accountId"] == Model.AccountID)
+            {
+                <div class="add-collection-card">
+                    <a href="@Url.Action("AddCollection", "Collection")" class="add-collection-link">
+                        <div class="add-collection-content">
+                            <i class="fas fa-plus-circle fa-3x mb-2"></i>
+                            <h5>Tạo bộ sưu tập mới</h5>
+                        </div>
+                    </a>
+                </div>
+            }
+            @foreach (var collection in Model.Collections)
+            {
+                <div class="collection-card">
+                    <div class="collection-image-container">
+                        <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Collection/" + collection.CoverImage)"
+                             alt="@collection.Name"
+                             onerror="this.onerror=null;this.src='@Url.Content("~/Content/Upload/Image/CoverImage/Collection/default.jpg")';"
+                             class="collection-image" />
+                        <a href="@Url.Action("Index", "Songs", new { id = collection.CollectionID })" class="collection-image-link"></a>
+                    </div>
+                    <div class="card-content">
+                        <h5 class="collection-name">
+                            <a href="@Url.Action("Index", "Songs", new { id = collection.CollectionID })" style="text-decoration:none; color:inherit;">
+                                @collection.Name
+                            </a>
+                        </h5>
+                        <p class="collection-description">@collection.Description</p>
+                        <div class="collection-meta">
+                            <span>Số bài hát: <strong>@collection.CollectionSongs.Count()</strong></span>
+                            <span>Ngày tạo: <strong>@collection.CreatedAt</strong></span>
                         </div>
                     </div>
-                </a>
-            </div>
-        }
-    </div>
-}
+                </div>
+            }
+        </div>
+    }
+</div>
 
 <!-- Modal Chỉnh sửa thông tin -->
 <div class="modal fade" id="editInfoModal" tabindex="-1" aria-labelledby="editInfoModalLabel" aria-hidden="true">
@@ -57,28 +103,53 @@ else
                 <h5 class="modal-title" id="editInfoModalLabel">Chỉnh sửa thông tin</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            @using (Html.BeginForm("Index", "UserProfile", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            @using (Html.BeginForm("Edit", "UserProfile", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
                 @Html.HiddenFor(m => m.AccountID)
+
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="Fullname" class="form-label text-light fw-semibold">Họ và tên</label>
-                        <input type="text" name="Fullname" id="Fullname" class="form-control form-control-dark" value="@Model.Fullname" required />
+                    <div class="mb-3 text-center">
+                        <label class="form-label text-light fw-semibold">Ảnh bìa hiện tại / mới</label>
+                        <div class="d-flex justify-content-center gap-3 align-items-center">
+                            <img id="editCurrentCoverImage"
+                                 src="@Url.Content("~/Content/Upload/Image/ProfileImage/" + Model.ProfileImage)"
+                                 alt="Ảnh hiện tại"
+                                 class="img-thumbnail rounded-circle"
+                                 style="width: 150px; height: 150px; object-fit: cover;" />
+
+                            <img id="editPreviewNewCoverImage"
+                                 src="#"
+                                 alt="Ảnh mới"
+                                 class="img-thumbnail rounded-circle d-none"
+                                 style="width: 150px; height: 150px; object-fit: cover;" />
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="Email" class="form-label text-light fw-semibold">Email</label>
-                        <input type="email" name="Email" id="Email" class="form-control form-control-dark" value="@Model.Email" required />
-                    </div>
-                    <div class="mb-3">
-                        <label for="ProfileImageFile" class="form-label text-light fw-semibold">Ảnh đại diện mới</label>
-                        <input type="file" name="ProfileImageFile" id="ProfileImageFile" class="form-control form-control-dark" />
-                    </div>
+
+
+                <div class="mb-3">
+                    <label class="form-label text-light fw-semibold">Chọn ảnh bìa mới</label>
+                    <input type="file"
+                           name="ProfileImageFile"
+                           id="editCoverImageInput"
+                           class="form-control form-control-dark"
+                           accept="image/*" />
                 </div>
+            <div class="mb-3">
+                <label for="Fullname" class="form-label text-light fw-semibold">Họ và tên</label>
+                @Html.TextBoxFor(m => m.Fullname, new { @class = "form-control form-control-dark", required = "required" })
+            </div>
+            <div class="mb-3">
+                <label for="Email" class="form-label text-light fw-semibold">Email</label>
+                @Html.TextBoxFor(m => m.Email, new { @type = "email", @class = "form-control form-control-dark", required = "required" })
+            </div>
+
+        </div>
                 <div class="modal-footer border-0">
                     <button type="submit" class="btn btn-success px-4">Lưu thay đổi</button>
                     <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Hủy</button>
                 </div>
             }
+
         </div>
     </div>
 </div>
@@ -93,7 +164,7 @@ else
             </div>
             @using (Html.BeginForm("ChangePassword", "UserProfile", FormMethod.Post))
             {
-                @Html.Hidden("AccountID", Model.AccountID)
+                @Html.Hidden("AccountID", Model.AccountID, new { id = "AccountID_ChangePassword" })
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="CurrentPassword" class="form-label text-light fw-semibold">Mật khẩu hiện tại</label>
@@ -117,194 +188,417 @@ else
     </div>
 </div>
 
+<!-- Modal Báo cáo người dùng -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light rounded-4 border-0 shadow-lg">
+            @using (Html.BeginForm("ReportUser", "Report", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="reportModalLabel">Báo cáo người dùng</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    @Html.Hidden("reportedUserId", Model.AccountID)
+                    <div class="mb-3">
+                        <label for="reason" class="form-label fw-semibold">Lý do báo cáo</label>
+                        @Html.TextArea("reason", null, new { @class = "form-control form-control-dark", id = "reason", rows = 4, required = "required" })
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-danger px-4">Gửi báo cáo</button>
+                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.getElementById('editCoverImageInput');
+        const previewImg = document.getElementById('editPreviewNewCoverImage');
+        const currentImg = document.getElementById('editCurrentCoverImage');
+
+        input.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove('d-none');
+                    currentImg.classList.add('d-none');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImg.classList.add('d-none');
+                currentImg.classList.remove('d-none');
+            }
+        });
+    });
+</script>
+
 <style>
-    /* User Info Box */
+    .container-fluid {
+        padding: 0 2rem;
+    }
+
     .user-info-box {
         display: flex;
         align-items: center;
-        background: linear-gradient(90deg, #1f2235, #2f3050);
-        padding: 1.25rem 2rem;
-        border-radius: 12px;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 12px rgb(0 0 0 / 0.35);
+        background: #2a2a40;
+        padding: 1.5rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        margin-bottom: 2rem;
+        transition: box-shadow 0.3s ease;
     }
 
+        .user-info-box:hover {
+            box-shadow: 0 6px 16px rgba(107, 72, 255, 0.4);
+        }
+
     .user-avatar {
-        width: 110px;
-        height: 110px;
+        width: 120px;
+        height: 120px;
         border-radius: 50%;
         object-fit: cover;
         margin-right: 1.5rem;
-        box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-        border: 2px solid #7266f0;
+        border: 3px solid #6b48ff;
+        transition: transform 0.3s ease;
+    }
+
+    .user-info-box:hover .user-avatar {
+        transform: scale(1.05);
     }
 
     .user-info-text {
-        color: #cbc7d9;
         flex-grow: 1;
+        color: #e0d8f3;
     }
 
     .user-fullname {
         font-size: 1.9rem;
-        margin: 0;
         font-weight: 700;
-        color: #ede9ff;
+        margin: 0;
+        background: linear-gradient(45deg, #6b48ff, #a88bff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
-    .user-username {
-        color: #a99fcb;
-        font-style: italic;
-        margin: 0.3rem 0 0;
+    .user-username, .user-email {
+        font-size: 0.95rem;
+        color: #b19cd9;
         font-weight: 500;
+        margin: 0.3rem 0;
     }
 
-    /* Collection Cards */
-    .collection-card-link {
-        text-decoration: none;
-        color: inherit;
+    .user-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    /* Collection Grid */
+    .collection-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
 
     .collection-card {
-        background: linear-gradient(135deg, #21253b, #2a2f52);
-        border-radius: 12px;
+        background: #2a2a40;
+        border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 6px 16px rgb(0 0 0 / 0.3);
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-        height: 100%;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
         display: flex;
         flex-direction: column;
     }
 
         .collection-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 14px 25px rgb(114 102 240 / 0.7);
+            box-shadow: 0 6px 16px rgba(107, 72, 255, 0.4);
         }
 
-        .collection-card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-bottom: 2px solid #7266f0;
-        }
+    .collection-image-container {
+        position: relative;
+        width: 100%;
+        height: 180px;
+        overflow: hidden;
+    }
+
+    .collection-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 16px 16px 0 0;
+        transition: transform 0.3s ease;
+    }
+
+    .collection-card:hover .collection-image {
+        transform: scale(1.05);
+    }
+
+    .card-play-button {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(107, 72, 255, 0.8);
+        border-radius: 50%;
+        color: #fff;
+        font-size: 1.5rem;
+        opacity: 0;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        z-index: 10;
+    }
+
+    .collection-card:hover .card-play-button {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .collection-image-link {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
+        text-decoration: none;
+    }
 
     .card-content {
-        padding: 1rem 1.2rem;
-        flex-grow: 1;
+        padding: 1rem;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        gap: 0.5rem;
+        flex-grow: 1;
     }
 
     .collection-name {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #ede9ff;
-        margin-bottom: 0.4rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #e0d8f3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin: 0;
     }
 
     .collection-description {
-        color: #a99fcb;
-        margin: 0 0 0.8rem;
+        color: #b19cd9;
+        font-size: 0.9rem;
+        margin: 0.5rem 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
         min-height: 48px;
-        font-size: 0.95rem;
-        line-height: 1.2;
     }
 
     .collection-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
         font-size: 0.85rem;
-        color: #8889aa;
+        color: #b19cd9;
+    }
+
+        .collection-meta span {
+            color: #e0d8f3;
+            font-weight: 500;
+        }
+
+    /* Add Collection Card */
+    .add-collection-card {
+        background: #2a2a40;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+        .add-collection-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 6px 16px rgba(107, 72, 255, 0.4);
+        }
+
+    .add-collection-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        text-decoration: none;
+        color: #e0d8f3;
+        padding: 1rem;
+    }
+
+    .add-collection-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .add-collection-content i {
+            color: #6b48ff;
+            transition: transform 0.3s ease;
+        }
+
+    .add-collection-card:hover i {
+        transform: scale(1.2);
+    }
+
+    .add-collection-content h5 {
+        font-size: 1.2rem;
+        font-weight: 600;
         margin: 0;
     }
 
     /* Empty Message */
     .empty-message {
-        background: linear-gradient(90deg, #21253b, #2a2f52);
+        background: #2a2a40;
         padding: 2rem;
-        color: #a99fcb;
-        font-size: 1.2rem;
-        border-radius: 12px;
+        color: #b19cd9;
+        font-size: 1.1rem;
+        border-radius: 16px;
         text-align: center;
-        box-shadow: 0 6px 16px rgb(0 0 0 / 0.3);
-        font-style: italic;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        margin: 2rem auto;
+        max-width: 500px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
     }
 
-    /* Modal form input (dark) */
+    /* Modal and Form Styling */
+    .modal-content {
+        background: #2a2a40;
+        border-radius: 16px;
+    }
+
     .form-control-dark {
-        background-color: #2f3050;
-        border: 1px solid #7266f0;
-        color: #e3e0ff;
-        border-radius: 6px;
-        transition: border-color 0.3s ease;
+        background-color: #3a3a5a;
+        border: 1px solid #6b48ff;
+        color: #e0d8f3;
+        border-radius: 8px;
+        transition: all 0.3s ease;
     }
 
         .form-control-dark:focus {
-            background-color: #3a3c68;
-            border-color: #a992ff;
+            background-color: #4a4a6f;
+            border-color: #a88bff;
             color: #fff;
-            box-shadow: 0 0 8px #a992ff88;
+            box-shadow: 0 0 8px rgba(107, 72, 255, 0.3);
             outline: none;
         }
 
-    /* Modal label styling */
     .form-label {
         font-size: 0.9rem;
+        color: #e0d8f3;
     }
 
     /* Buttons */
     .btn-outline-light {
-        border-color: #7266f0;
-        color: #d6ceff;
-        font-weight: 600;
+        border-color: #6b48ff;
+        color: #6b48ff;
+        font-weight: 500;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
         transition: all 0.3s ease;
     }
 
         .btn-outline-light:hover {
-            background-color: #7266f0;
+            background-color: #6b48ff;
             color: #fff;
-            border-color: #7266f0;
-            box-shadow: 0 0 10px #7266f0aa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(107, 72, 255, 0.3);
         }
 
     .btn-success {
-        background-color: #7266f0;
-        border-color: #7266f0;
-        font-weight: 600;
+        background-color: #6b48ff;
+        border-color: #6b48ff;
+        font-weight: 500;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
         transition: all 0.3s ease;
     }
 
         .btn-success:hover {
-            background-color: #5a4fcc;
-            border-color: #5a4fcc;
-            box-shadow: 0 0 12px #5a4fcccc;
+            background-color: #5a3ce6;
+            border-color: #5a3ce6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(107, 72, 255, 0.3);
         }
 
     .btn-warning {
         background-color: #f5a623;
         border-color: #f5a623;
-        font-weight: 600;
+        color: #1a1a2e;
+        font-weight: 500;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
         transition: all 0.3s ease;
-        color: #3c2f0f;
     }
 
         .btn-warning:hover {
-            background-color: #c38316;
-            border-color: #c38316;
-            box-shadow: 0 0 12px #c3831699;
+            background-color: #e6951c;
+            border-color: #e6951c;
             color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(245, 166, 35, 0.3);
         }
 
     .btn-outline-warning {
         border-color: #f5a623;
         color: #f5a623;
-        font-weight: 600;
+        font-weight: 500;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
         transition: all 0.3s ease;
     }
 
         .btn-outline-warning:hover {
             background-color: #f5a623;
-            color: #3c2f0f;
-            border-color: #f5a623;
-            box-shadow: 0 0 10px #f5a623bb;
+            color: #1a1a2e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(245, 166, 35, 0.3);
+        }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        font-weight: 500;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
         }
 </style>
 

@@ -1,4 +1,5 @@
-﻿<div class="music-player fixed-bottom bg-dark text-white d-none" id="music-player">
+﻿
+<div class="music-player fixed-bottom  bg-dark text-white d-none" id="music-player">
     <div class="container-fluid py-2 px-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
 
         <div class="d-flex align-items-center flex-grow-1 min-w-0" style="flex: 1 1 250px;">
@@ -16,7 +17,6 @@
             <input type="range" id="progress-bar" min="0" value="0" step="1" class="progress-slider">
             <span id="duration" class="time-text">0:00</span>
             <button class="btn btn-outline-secondary btn-sm" id="loop-btn" title="Lặp lại"><i class="fas fa-retweet"></i></button>
-            <button class="btn btn-outline-danger  btn-sm" id="like-btn" title="Yêu thích"><i class="fas fa-heart"></i></button>
         </div>
 
         <div class="volume-control d-flex align-items-center gap-2" style="flex: 1 1 150px;">
@@ -32,15 +32,20 @@
 
 <style>
     .music-player {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
         height: 80px;
         display: flex;
         align-items: center;
         background: linear-gradient(90deg, #2a2a40, #3f3f5f);
         border-top: 1px solid #4a4a6f;
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
-        z-index: 1000;
+        z-index: 1050; 
         transition: opacity 0.3s ease;
     }
+
 
     .music-player.d-none {
         opacity: 0;

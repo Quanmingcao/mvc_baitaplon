@@ -1,0 +1,305 @@
+﻿@model mvc_baitaplon.Models.Collection
+
+@{
+    ViewBag.Title = "Add New Collection";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var accountId = Session["accountId"];
+
+}
+
+<div class="container-fluid">
+    <div class="add-collection-container">
+        <h2 class="section-title">
+            Thêm bộ sưu tập mới
+        </h2>
+
+        @using (Html.BeginForm("AddCollection", "Collection", FormMethod.Post, new { enctype = "multipart/form-data", @class = "add-collection-form" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="validation-summary">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "form-label" })
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", placeholder = "Enter collection name" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                @Html.Label("Type", htmlAttributes: new { @class = "form-label" })
+                @Html.DropDownList("TypeID", null, "-- Select Type --", new { @class = "form-select" })
+                @Html.ValidationMessageFor(model => model.TypeID, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                @Html.Label("Cover Image", htmlAttributes: new { @class = "form-label" })
+                <div class="custom-file-upload">
+                    <label for="CoverImageFile" class="file-label">
+                        <i class="fas fa-upload"></i> Choose Image
+                    </label>
+                    <input type="file" id="CoverImageFile" name="CoverImageFile" class="form-control" accept="image/*" onchange="previewImage(event)" />
+                    @Html.ValidationMessage("CoverImage", new { @class = "text-danger" })
+                </div>
+                <div class="image-preview mt-3">
+                    <img id="coverPreview" src="#" alt="Image Preview" class="img-fluid" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "form-label" })
+                @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = 5, placeholder = "Describe your collection" })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create Collection</button>
+                @Html.ActionLink("Back", "Index", "UserProfile", new { id = accountId }, new { @class = "btn btn-outline-secondary ms-2" })
+            </div>
+        }   
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary-color: #7c3aed;
+        --secondary-color: #a78bfa;
+        --background-dark: #1f1f38;
+        --card-bg: #2a2a4a;
+        --text-primary: #f5f5ff;
+        --text-secondary: #b0a8ff;
+        --shadow: rgba(0, 0, 0, 0.3);
+        --danger-color: #ff4d4f;
+    }
+
+    .container-fluid {
+        padding: 2rem;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+    }
+
+    .add-collection-container {
+        width: 60%;
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px var(--shadow);
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 2rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        border-radius: 2px;
+    }
+
+    .add-collection-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-label {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+
+    .form-control, .form-select {
+        background: #3a3a5a;
+        border: 1px solid #4a4a6a;
+        color: var(--text-primary);
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-size: 1rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 8px rgba(124, 58, 237, 0.3);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+
+    .custom-file-upload {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .file-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: var(--primary-color);
+        color: var(--text-primary);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .file-label:hover {
+        background: var(--secondary-color);
+    }
+
+    .form-control[type="file"] {
+        opacity: 0;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .image-preview {
+        max-width: 300px;
+    }
+
+    .image-preview img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 8px;
+        border: 1px solid #4a4a6a;
+        display: none;
+        object-fit: cover;
+    }
+
+    .text-danger {
+        font-size: 0.9rem;
+        color: var(--danger-color);
+        margin-top: 0.25rem;
+    }
+
+    .validation-summary .text-danger {
+        background: rgba(255, 77, 79, 0.1);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        border: none;
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn-primary:hover {
+        background: var(--secondary-color);
+        transform: translateY(-2px);
+    }
+
+    .btn-outline-secondary {
+        border-color: var(--text-secondary);
+        color: var(--text-secondary);
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: border-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+
+    @@media (max-width: 768px) {
+        .container-fluid {
+            padding: 1.5rem;
+        }
+
+        .add-collection-container {
+            padding: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+        }
+
+        .form-control, .form-select {
+            font-size: 0.95rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn-primary, .btn-outline-secondary {
+            padding: 0.75rem;
+            text-align: center;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .container-fluid {
+            padding: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+        }
+
+        .image-preview {
+            max-width: 100%;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function previewImage(event) {
+            const input = event.target;
+            const preview = document.getElementById('coverPreview');
+            const file = input.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '#';
+                preview.style.display = 'none';
+            }
+        }
+    </script>
+}

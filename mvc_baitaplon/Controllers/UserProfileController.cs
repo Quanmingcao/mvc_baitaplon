@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -25,48 +26,55 @@ namespace mvc_baitaplon.Controllers
 
             return View(user);
         }
-
         [HttpPost]
-        public ActionResult Index(Account model, HttpPostedFileBase ProfileImageFile)
+        public ActionResult Edit(int AccountID, HttpPostedFileBase ProfileImageFile)
         {
-            if (ModelState.IsValid)
+            var user = db.Accounts.Find(AccountID);
+            if (user != null)
             {
-                var user = db.Accounts.Find(model.AccountID);
-                if (user != null)
-                {
-                    user.Fullname = model.Fullname;
-                    user.Email = model.Email;
+                user.Fullname = Request.Form["Fullname"];
+                user.Email = Request.Form["Email"];
 
-                    if (ProfileImageFile != null && ProfileImageFile.ContentLength > 0)
+                if (ProfileImageFile != null && ProfileImageFile.ContentLength > 0)
+                {
+                    if (!string.IsNullOrEmpty(user.ProfileImage) && user.ProfileImage != "default.jpg")
                     {
-                        var fileName = System.IO.Path.GetFileName(ProfileImageFile.FileName);
-                        var path = Server.MapPath("~/Content/Upload/Image/ProfileImage/" + fileName);
-                        ProfileImageFile.SaveAs(path);
-                        user.ProfileImage = fileName;
+                        var oldImagePath = Path.Combine(Server.MapPath("~/Content/Upload/Image/ProfileImage"), user.ProfileImage);
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
                     }
 
-                    db.SaveChanges();
-                    return RedirectToAction("Index", new { id = user.AccountID });
+                    var fileName = Path.GetFileName(ProfileImageFile.FileName);
+                    var newImagePath = Path.Combine(Server.MapPath("~/Content/Upload/Image/ProfileImage"), fileName);
+                    ProfileImageFile.SaveAs(newImagePath);
+                    user.ProfileImage = fileName;
+                    Session["ProfileImage"] = fileName;
+
                 }
+
+                db.SaveChanges();
+                return RedirectToAction("Index", new { id = user.AccountID });
             }
 
-            var refreshedUser = db.Accounts
-                                  .Include(c => c.Collections)
-                                  .FirstOrDefault(a => a.AccountID == model.AccountID);
-            return View(refreshedUser);
+            var refreshedUser = db.Accounts.Include(c => c.Collections)
+                                           .FirstOrDefault(a => a.AccountID == AccountID);
+            return View("Index", refreshedUser);
         }
+
+
 
         [HttpPost]
         public ActionResult ChangePassword(int AccountID, string CurrentPassword, string NewPassword, string ConfirmNewPassword)
         {
             var account = db.Accounts.Find(AccountID);
-
             if (account == null)
                 return HttpNotFound();
-            string hashedPassword = HashHelper.ToSHA256(CurrentPassword);
 
+            string hashedCurrentPassword = HashHelper.ToSHA256(CurrentPassword);
 
-            if (account.PasswordHash != hashedPassword)
+            if (account.PasswordHash != hashedCurrentPassword)
             {
                 TempData["Error"] = "Mật khẩu hiện tại không đúng.";
                 return RedirectToAction("Detail", new { id = AccountID });
@@ -78,12 +86,14 @@ namespace mvc_baitaplon.Controllers
                 return RedirectToAction("Detail", new { id = AccountID });
             }
 
-            account.PasswordHash = NewPassword;
+            string hashedNewPassword = HashHelper.ToSHA256(NewPassword);
+            account.PasswordHash = hashedNewPassword;
             db.SaveChanges();
 
             TempData["Success"] = "Đổi mật khẩu thành công!";
             return RedirectToAction("Detail", new { id = AccountID });
         }
+
 
     }
 }

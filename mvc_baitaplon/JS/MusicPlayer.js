@@ -7,14 +7,10 @@
     const currentTimeLabel = document.getElementById("current-time");
     const durationLabel = document.getElementById("duration");
     const loopButton = document.getElementById("loop-btn");
-    const likeButton = document.getElementById("like-btn");
 
     const audio = new Audio();
     let isPlaying = false;
-    let currentSongTitle = "";
-    let currentFilePath = "";
     let isLooping = false;
-    let isLiked = false;
 
     window.currentSongId = null;
 
@@ -24,30 +20,21 @@
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     }
 
-    function updateLikeButtonUI() {
-        if (isLiked) {
-            likeButton.classList.remove("btn-outline-danger");
-            likeButton.classList.add("btn-danger");
-            likeButton.innerHTML = '<i class="fas fa-heart"></i>';
-        } else {
-            likeButton.classList.remove("btn-danger");
-            likeButton.classList.add("btn-outline-danger");
-            likeButton.innerHTML = '<i class="fas fa-heart"></i>';
+    window.playSong = function (title, filePath, songId, coverImagePath, username, userId) {
+        if (window.currentSongId === songId && !audio.paused) {
+            return;
         }
-    }
 
-
-    window.playSong = function (title, filePath, songId, coverImagePath, username,id) {
         songTitle.innerHTML = `
             <div>
-                <a href="/UserProfile/Index/${id}" style="font-weight: bold; color: #ccc; text-decoration: none;">
+                <a href="/UserProfile/Index/${userId}" style="font-weight: bold; color: #ccc; text-decoration: none;">
                     ${username}
                 </a>
             </div>
-        <div style="font-size: 1.2em;">${title}</div>
-            `;
+            <div style="font-size: 1.2em;">${title}</div>
+        `;
+
         window.currentSongId = songId;
-        currentFilePath = filePath;
 
         const coverImg = document.getElementById("cover-image");
         if (coverImagePath) {
@@ -57,16 +44,6 @@
             coverImg.src = "";
             coverImg.style.display = "none";
         }
-
-        fetch(`/Likes/IsLiked/${songId}`)
-            .then(res => res.json())
-            .then(data => {
-                isLiked = data.liked;
-                updateLikeButtonUI();
-            })
-            .catch(err => {
-                console.error("Lỗi khi kiểm tra like:", err);
-            });
 
         audio.src = filePath;
         audio.volume = vol.value / 100;
@@ -79,9 +56,34 @@
             .then(() => {
                 isPlaying = true;
                 playButton.innerHTML = '<i class="fas fa-pause"></i>';
-            })
-            .catch(error => {
-                console.error("Lỗi khi phát nhạc:", error);
+
+                fetch("/ListenHistorys/AddToHistory", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `songId=${songId}`
+                })
+                    .then(res => {
+                        if (!res.ok) {
+                            console.error("Lỗi ghi lịch sử:", res.status);
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Lỗi fetch ghi lịch sử:", err);
+                    });
+
+                fetch("/Songs/AddToView", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `songId=${songId}`
+                })
+                    .then(res => {
+                        if (!res.ok) {
+                            console.error("Lỗi tăng views:", res.status);
+                        }
+                    })
+                    .catch(err => console.error("Lỗi fetch tăng views:", err));
             });
 
         musicPlayer.classList.remove("d-none");
@@ -95,9 +97,11 @@
 
         if (audio.paused) {
             audio.play();
+            isPlaying = true;
             playButton.innerHTML = '<i class="fas fa-pause"></i>';
         } else {
             audio.pause();
+            isPlaying = false;
             playButton.innerHTML = '<i class="fas fa-play"></i>';
         }
     });
@@ -132,33 +136,4 @@
             loopButton.classList.add("btn-outline-secondary");
         }
     });
-    likeButton.addEventListener("click", () => {
-        if (!window.currentSongId) {
-            alert("Chưa chọn bài nhạc để thả tim.");
-            return;
-        }
-
-        fetch("/Likes/Toggle", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ songId: window.currentSongId })
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Lỗi khi gửi yêu cầu like/unlike");
-                return res.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    isLiked = data.liked;
-                    updateLikeButtonUI();
-                    alert(data.message);
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(err => {
-                console.error(err);
-            });
-    });
-
 });

@@ -1,0 +1,391 @@
+﻿@model mvc_baitaplon.Models.Model_View.SearchResultViewModel
+
+@{
+    ViewBag.Title = "Kết quả tìm kiếm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="search-results-container">
+        <h2 class="section-title">Kết quả tìm kiếm cho "<span class="highlight">@Model.Search</span>"</h2>
+
+        @if (string.IsNullOrWhiteSpace(Model.Search))
+        {
+            <div class="empty-message">
+                <i class="fas fa-search fa-3x mb-3"></i>
+                <p>Nhập từ khóa để tìm kiếm bài hát, bộ sưu tập hoặc tài khoản.</p>
+            </div>
+        }
+        else
+        {
+            <!-- Songs Section -->
+            <div class="search-section">
+                <h3 class="section-subtitle">Bài hát (@Model.Songs.Count)</h3>
+                @if (Model.Songs.Count == 0)
+                {
+                    <div class="empty-message">
+                        <i class="fas fa-music fa-2x mb-3"></i>
+                        <p>Không tìm thấy bài hát nào phù hợp.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="search-grid">
+                        @foreach (var song in Model.Songs)
+                        {
+                            <div class="search-card">
+                                <div class="card-image">
+                                    <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)"
+                                         alt="@song.Title Cover"
+                                         onerror="this.onerror=null;this.src='@Url.Content("~/Content/Upload/Image/CoverImage/Song/default.jpg")';" />
+                                    <a href="javascript:void(0);"
+                                       class="card-play-button"
+                                       onclick="playSong('@song.Title', '@Url.Content("~/Content/Upload/Music_file/" + song.FilePath)', '@song.SongID', '@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)', '@song.Account.Username', '@song.AccountID')"
+                                       title="Phát bài hát">
+                                        <i class="fas fa-play"></i>
+                                    </a>
+                                </div>
+                                <div class="card-content">
+                                    <a href="@Url.Action("Details", "Songs", new { id = song.SongID })" class="card-title">@song.Title</a>
+                                    <p class="card-meta">@song.Account.Username</p>
+                                    <p class="card-meta duration">@TimeSpan.FromSeconds((double)(song.Duration ?? 0)).ToString(@"mm\:ss")</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="search-section">
+                <h3 class="section-subtitle">Bộ sưu tập (@Model.Collections.Count)</h3>
+                @if (Model.Collections.Count == 0)
+                {
+                    <div class="empty-message">
+                        <i class="fas fa-folder fa-2x mb-3"></i>
+                        <p>Không tìm thấy bộ sưu tập nào phù hợp.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="search-grid">
+                        @foreach (var collection in Model.Collections)
+                        {
+                            <a href="@Url.Action("Index", "Songs", new { id = collection.CollectionID })" class="search-card">
+                                <div class="card-image">
+                                    <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Collection/" + collection.CoverImage)"
+                                         alt="@collection.Name Cover"
+                                         onerror="this.onerror=null;this.src='@Url.Content("~/Content/Upload/Image/CoverImage/Collection/default.jpg")';" />
+                                </div>
+                                <div class="card-content">
+                                    <h3 class="card-title">@collection.Name</h3>
+                                    <p class="card-meta">@collection.Account.Username</p>
+                                    <p class="card-meta description">@collection.Description</p>
+                                </div>
+                            </a>
+                        }
+                    </div>
+
+
+                }
+            </div>
+
+            <div class="search-section">
+                <h3 class="section-subtitle">Tài khoản (@Model.Accounts.Count)</h3>
+                @if (Model.Accounts.Count == 0)
+                {
+                    <div class="empty-message">
+                        <i class="fas fa-user fa-2x mb-3"></i>
+                        <p>Không tìm thấy tài khoản nào phù hợp.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="search-grid">
+                        @foreach (var account in Model.Accounts)
+                        {
+                            <div class="search-card account-card">
+                                <div class="card-image">
+                                    <a href="@Url.Action("Index", "UserProfile", new { id = account.AccountID })" title="@account.Username">
+                                        <img src="@Url.Content("~/Content/Upload/Image/ProfileImage/" + account.ProfileImage)"
+                                             alt="@account.Username Avatar"
+                                             onerror="this.onerror=null;this.src='@Url.Content("~/Content/Upload/Image/ProfileImage/default.jpg")';" />
+                                    </a>
+                                </div>
+                                <div class="card-content">
+                                    <a href="@Url.Action("Index", "UserProfile", new { id = account.AccountID })" class="card-title">@account.Username</a>
+                                    <p class="card-meta">@account.Fullname</p>
+                                    <p class="card-meta email">@account.Email</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                }
+            </div>
+        }
+    </div>
+</div>
+@Html.Partial("_MusicPlayer")
+
+<style>
+
+    :root {
+        --primary-color: #7c3aed;
+        --secondary-color: #a78bfa;
+        --background-dark: #1f1f38;
+        --card-bg: #2a2a4a;
+        --text-primary: #f5f5ff;
+        --text-secondary: #b0a8ff;
+        --shadow: rgba(0, 0, 0, 0.3);
+    }
+
+    .container-fluid {
+        padding: 0;
+        margin: 0;
+    }
+
+    .search-results-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 1rem 0 2rem;
+        color: var(--text-primary);
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        border-radius: 2px;
+    }
+
+    .highlight {
+        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+    }
+
+    .section-subtitle {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 1.5rem 0 1rem;
+        padding-left: 0.75rem;
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .search-section {
+        margin-bottom: 3rem;
+    }
+
+    .search-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.75rem;
+        padding: 0.5rem;
+    }
+
+    .search-card {
+        background: var(--card-bg);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .search-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 24px var(--shadow);
+    }
+
+    .card-image {
+        position: relative;
+        width: 100%;
+        padding-top: 100%;
+        overflow: hidden;
+    }
+
+    .card-image img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 12px 12px 0 0;
+        transition: transform 0.4s ease;
+    }
+
+    .search-card:hover .card-image img {
+        transform: scale(1.08);
+    }
+
+    .card-play-button {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-color);
+        border-radius: 50%;
+        color: var(--text-primary);
+        font-size: 1.4rem;
+        opacity: 0;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .search-card:hover .card-play-button {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15);
+    }
+
+    .card-content {
+        padding: 1.25rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        text-decoration: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        transition: color 0.3s ease;
+    }
+
+        .card-title:hover {
+            color: var(--secondary-color);
+        }
+
+    .card-meta {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+        .card-meta.description {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-meta.email {
+            font-size: 0.85rem;
+            color: #8b83cc;
+        }
+
+        .card-meta.duration {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+    .account-card .card-image {
+        padding-top: 120px;
+        position: relative;
+        width: 120px;
+        margin: 0 auto;
+    }
+
+    .account-card .card-image img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .empty-message {
+        background: var(--card-bg);
+        padding: 2.5rem;
+        border-radius: 16px;
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        box-shadow: 0 4px 12px var(--shadow);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+
+        .empty-message i {
+            color: var(--primary-color);
+        }
+
+    @@media (max-width: 992px) {
+        .search-grid {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .search-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.3rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .container-fluid {
+            padding: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+        }
+
+        .search-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .card-content {
+            padding: 1rem;
+        }
+    }
+</style>

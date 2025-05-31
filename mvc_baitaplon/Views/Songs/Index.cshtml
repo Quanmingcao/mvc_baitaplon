@@ -1,7 +1,8 @@
-﻿@model IEnumerable<mvc_baitaplon.Models.CollectionSong>
+﻿@model mvc_baitaplon.Models.Model_View.CollectionDetailViewModel
 
 @{
-    var collection = Model.FirstOrDefault()?.Collection;
+    var collection = Model.Collection;
+    var songs = Model.Songs;
     ViewBag.Title = collection?.Name ?? "Danh sách bài hát";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -11,32 +12,66 @@
     {
         <div class="collection-header">
             <div class="collection-cover">
-                <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Collection/" + collection.CoverImage)" alt="Collection Cover" />
+                <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Collection/" + collection.CoverImage)"
+                     alt="Collection Cover"
+                     onerror="this.onerror=null;this.src='@Url.Content("~/Content/Upload/Image/CoverImage/Collection/default.jpg")';" />
             </div>
             <div class="collection-details">
                 <h1 class="collection-title">@collection.Name</h1>
                 <p class="collection-description">@collection.Description</p>
                 <p class="collection-meta"><strong>Người tạo:</strong> <span>@collection.Account.Fullname</span></p>
-                <p class="collection-meta"><strong>Số bài hát:</strong> <span>@Model.Count()</span></p>
+                <p class="collection-meta"><strong>Số bài hát:</strong> <span>@songs.Count()</span></p>
                 <p class="collection-meta"><strong>Ngày tạo:</strong> <span>@collection.CreatedAt</span></p>
-                <button class="btn btn-outline-warning btn-sm" title="Báo cáo">
-                    <i class="fas fa-flag"></i> Report
-                </button>
-
-                @using (Html.BeginForm("Addlibrary", "Library", FormMethod.Post, new { @class = "d-inline" }))
-                {
-                    @Html.Hidden("Collectionid", collection.CollectionID)
-                    <button class="btn btn-outline-success border-2 btn-sm" title="Thêm vào thư viện">
-                        <i class="bi bi-plus-circle"></i> Thêm
-                    </button>
-                }
+                <div class="collection-actions">
+                    @if ((int?)Session["accountId"] == collection.AccountID)
+                    {
+                        using (Html.BeginForm("AddSong", "Songs", FormMethod.Get, new { @class = "d-inline" }))
+                        {
+                            @Html.Hidden("Collectionid", collection.CollectionID)
+                            <button class="btn btn-outline-success btn-sm" title="Thêm bài hát">
+                                <i class="fas fa-plus-circle"></i> Thêm bài hát
+                            </button>
+                        }
+                        <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#editCollectionModal" title="Chỉnh sửa bộ sưu tập">
+                            <i class="fas fa-edit"></i> Chỉnh sửa
+                        </button>
+                        using (Html.BeginForm("TogglePublic", "Collection", FormMethod.Post, new { @class = "d-inline" }))
+                        {
+                            @Html.Hidden("CollectionID", collection.CollectionID)
+                            <button type="submit" class="btn btn-outline-secondary btn-sm" title="Chuyển trạng thái công khai">
+                                <i class="fas @(collection.IsPublic.GetValueOrDefault() ? "fa-eye-slash" : "fa-eye")"></i> @(collection.IsPublic.GetValueOrDefault() ? "Riêng tư" : "Công khai")
+                            </button>
+                        }
+                    }
+                    else
+                    {
+                        <button class="btn btn-outline-warning btn-sm" title="Báo cáo" data-bs-toggle="modal" data-bs-target="#reportCollectionModal">
+                            <i class="fas fa-flag"></i> Báo cáo
+                        </button>
+                        using (Html.BeginForm("Addlibrary", "Library", FormMethod.Post, new { @class = "d-inline" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.Hidden("Collectionid", collection.CollectionID)
+                            <button class="btn btn-outline-success btn-sm" title="Thêm vào thư viện">
+                                <i class="fas fa-plus-circle"></i> Thêm vào thư viện
+                            </button>
+                        }
+                    }
+                </div>
             </div>
         </div>
     }
 
-    @if (!Model.Any())
+    @if (!songs.Any())
     {
-        <div class="empty-message">Không có bài hát nào trong bộ sưu tập này.</div>
+        <div class="empty-message">
+            <i class="fas fa-music fa-2x mb-2"></i>
+            <p>Không có bài hát nào trong bộ sưu tập này.</p>
+            @if ((int?)Session["accountId"] == collection.AccountID)
+            {
+                <a href="@Url.Action("AddSong", "Songs", new { Collectionid = collection.CollectionID })" class="btn btn-outline-light btn-sm">Thêm bài hát</a>
+            }
+        </div>
     }
     else
     {
@@ -54,27 +89,64 @@
             <tbody>
                 @{
                     var index = 1;
-                    foreach (var item in Model)
+                    foreach (var item in songs)
                     {
                         <tr>
                             <td>@index</td>
                             <td class="title-cell">
-                                <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + item.Song.CoverImage)" alt="Cover" />
-                                <div class="title-info">
-                                    <span class="song-title">@item.Song.Title</span>
+                                <div class="cell-wrapper">
+                                    <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + item.Song.CoverImage)"
+                                         alt="Cover"
+                                         onerror="this.onerror=null;this.src='@Url.Content("~/images/plhld.jpg")';" />
+                                    <div class="title-info">
+                                        @item.Song.Title
+                                    </div>
                                 </div>
                             </td>
+
                             <td>@item.Song.Account.Username</td>
                             <td>@item.Song.Views</td>
-                            <td>@item.Song.Duration</td>
-                            <td>
-                                <button class="btn btn-outline-danger btn-sm like-btn" data-id="@collection.CollectionID">
-                                    <i class="fas fa-heart"></i> Like
-                                </button>
-                                <button class="btn btn-outline-warning btn-sm" title="Báo cáo">
-                                    <i class="fas fa-flag"></i> Report
-                                </button>
+                            <td>@TimeSpan.FromSeconds((double)(item.Song.Duration ?? 0)).ToString(@"mm\:ss")</td>
+                            <td class="action-cell">
+                                <div class="action-wrapper">
+                                    <button type="button" class="btn btn-sm btn-play-custom" onclick="playSong('@item.Song.Title', '@Url.Content("~/Content/Upload/Music_file/" + item.Song.FilePath)','@item.Song.SongID', '@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + item.Song.CoverImage)',' @item.Song.Account.Username','@item.Song.AccountID')">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                    @if ((int?)Session["accountId"] != collection.AccountID)
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <button class="btn btn-sm like-btn @(item.IsLiked ? "btn-danger" : "btn-outline-danger")"
+                                                data-song-id="@item.Song.SongID">
+                                            <i class="fas fa-heart"></i>
+                                        </button>
+                                        <button class="btn btn-outline-warning btn-sm" title="Báo cáo"
+                                                data-bs-toggle="modal" data-bs-target="#reportSongModal"
+                                                data-songid="@item.Song.SongID">
+                                            <i class="fas fa-flag"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline-info btn-sm" title="Chỉnh sửa" data-bs-toggle="modal"
+                                                data-bs-target="#editSongModal"
+                                                data-songid="@item.Song.SongID"
+                                                data-title="@item.Song.Title"
+                                                data-duration="@item.Song.Duration"
+                                                data-coverimage="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + item.Song.CoverImage)">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        using (Html.BeginForm("TogglePublic", "Songs", FormMethod.Post, new { @class = "d-inline" }))
+                                        {
+                                            @Html.Hidden("SongID", item.Song.SongID)
+                                            @Html.Hidden("CollectionID", collection.CollectionID)
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm" title="Chuyển trạng thái công khai">
+                                                <i class="fas @(item.Song.IsPublic.GetValueOrDefault() ? "fa-eye-slash" : "fa-eye")"></i>
+                                            </button>
+                                        }
+                                    }
+                                </div>
                             </td>
+
                         </tr>
                         index++;
                     }
@@ -82,104 +154,576 @@
             </tbody>
         </table>
     }
+
+    <div class="modal fade" id="reportSongModal" tabindex="-1" aria-labelledby="reportSongModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light rounded-4 border-0 shadow-lg">
+                @using (Html.BeginForm("ReportSong", "Report", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title">Báo cáo Bài hát</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @Html.Hidden("SongId", "", new { id = "reportedSongId" })
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Lý do báo cáo</label>
+                            @Html.TextArea("Reason", null, new { @class = "form-control form-control-dark", rows = 4, required = "required" })
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="submit" class="btn btn-danger px-4">Gửi báo cáo</button>
+                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editSongModal" tabindex="-1" aria-labelledby="editSongModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light rounded-4 border-0 shadow-lg">
+                @using (Html.BeginForm("EditSong", "Songs", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title">Chỉnh sửa Bài hát</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @Html.Hidden("SongID", "", new { id = "editSongId" })
+                        @Html.Hidden("Collectionid", collection.CollectionID)
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-semibold">Tên bài hát</label>
+                            @Html.TextBox("Title", null, new { @class = "form-control form-control-dark", id = "editSongTitle", required = "required" })
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-semibold">Ảnh bìa hiện tại / mới</label>
+                            <div class="d-flex gap-3 align-items-center">
+                                <img id="editCurrentCoverImage" src="#" alt="Ảnh hiện tại" class="img-thumbnail" style="max-height: 150px;" />
+                                <img id="editPreviewNewCoverImage" src="#" alt="Ảnh mới" class="img-thumbnail d-none" style="max-height: 150px;" />
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-semibold">Chọn ảnh bìa mới</label>
+                            <input type="file" name="CoverImage" id="editCoverImageInput" class="form-control form-control-dark" accept="image/*" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-semibold">File nhạc mới</label>
+                            <input type="file" name="AudioFile" class="form-control form-control-dark" accept="audio/*" />
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="submit" class="btn btn-success px-4">Lưu thay đổi</button>
+                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Hủy</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editCollectionModal" tabindex="-1" aria-labelledby="editCollectionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light rounded-4 border-0 shadow-lg">
+                @using (Html.BeginForm("EditCollection", "Collection", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title">Chỉnh sửa bộ sưu tập</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @Html.Hidden("CollectionID", collection.CollectionID)
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-semibold">Tên bộ sưu tập</label>
+                            @Html.TextBox("Name", collection.Name, new { @class = "form-control form-control-dark", required = "required" })
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-semibold">Mô tả</label>
+                            @Html.TextArea("Description", collection.Description, new { @class = "form-control form-control-dark", rows = 3 })
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-semibold">Ảnh bìa hiện tại / mới</label>
+                            <div class="cover-image-preview-wrapper">
+                                <img id="currentCoverImage" src="@Url.Content("~/Content/Upload/Image/CoverImage/Collection/" + collection.CoverImage)" alt="Ảnh bìa hiện tại" />
+                                <img id="previewNewCoverImage" src="#" alt="Ảnh bìa mới" class="d-none" />
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-semibold">Chọn ảnh bìa mới</label>
+                            <input type="file" name="CoverImageFile" id="coverImageInput" class="form-control form-control-dark" accept="image/*" />
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="submit" class="btn btn-success px-4">Lưu thay đổi</button>
+                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Hủy</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="reportCollectionModal" tabindex="-1" aria-labelledby="reportCollectionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light rounded-4 border-0 shadow-lg">
+                @using (Html.BeginForm("ReportCollection", "Report", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title">Báo cáo Bộ sưu tập</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @Html.Hidden("CollectionID", collection.CollectionID)
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Lý do báo cáo</label>
+                            @Html.TextArea("Reason", null, new { @class = "form-control form-control-dark", rows = 4, required = "required" })
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="submit" class="btn btn-danger px-4">Gửi báo cáo</button>
+                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>
 
-
+<script src="~/JS/Like.js"></script>
+<script>
+    var reportSongModal = document.getElementById('reportSongModal');
+    reportSongModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var songId = button.getAttribute('data-songid');
+        var inputSongId = reportSongModal.querySelector('#reportedSongId');
+        inputSongId.value = songId;
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('coverImageInput').addEventListener('change', function (event) {
+            const previewImg = document.getElementById('previewNewCoverImage');
+            const currentImg = document.getElementById('currentCoverImage');
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove('d-none');
+                    currentImg.classList.add('d-none');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImg.classList.add('d-none');
+                currentImg.classList.remove('d-none');
+            }
+        });
+    });
+</script>
+<script>
+    const editSongModal = document.getElementById('editSongModal');
+    editSongModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const songId = button.getAttribute('data-songid');
+        const title = button.getAttribute('data-title');
+        const coverImageUrl = button.getAttribute('data-coverimage');
+        document.getElementById('editSongId').value = songId;
+        document.getElementById('editSongTitle').value = title;
+        const currentImg = document.getElementById('editCurrentCoverImage');
+        const previewImg = document.getElementById('editPreviewNewCoverImage');
+        currentImg.src = coverImageUrl;
+        currentImg.classList.remove('d-none');
+        previewImg.classList.add('d-none');
+    });
+    document.getElementById('editCoverImageInput').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        const previewImg = document.getElementById('editPreviewNewCoverImage');
+        const currentImg = document.getElementById('editCurrentCoverImage');
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                previewImg.src = e.target.result;
+                previewImg.classList.remove('d-none');
+                currentImg.classList.add('d-none');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            previewImg.classList.add('d-none');
+            currentImg.classList.remove('d-none');
+        }
+    });
+</script>
+@Html.Partial("_MusicPlayer")
 <style>
-
+    .container-fluid {
+        padding: 0 2rem;
+    }
 
     .collection-header {
         display: flex;
-        gap: 2rem;
-        background: linear-gradient(90deg, #2a2a40, #3f3f5f);
-        border-radius: 12px;
-        padding: 2rem;
+        gap: 1.5rem;
+        background: #2a2a40;
+        border-radius: 16px;
+        padding: 1.5rem;
         margin-bottom: 2rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: box-shadow 0.3s ease;
     }
 
-    .collection-cover img {
+        .collection-header:hover {
+            box-shadow: 0 6px 16px rgba(107, 72, 255, 0.4);
+        }
+
+    .collection-cover {
+        position: relative;
         width: 200px;
         height: 200px;
-        object-fit: cover;
         border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+    }
+
+        .collection-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+    .collection-header:hover .collection-cover img {
+        transform: scale(1.05);
+    }
+
+    .collection-play-button {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(107, 72, 255, 0.8);
+        border-radius: 50%;
+        color: #fff;
+        font-size: 1.5rem;
+        opacity: 0;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        z-index: 10;
+    }
+
+    .collection-header:hover .collection-play-button {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.1);
     }
 
     .collection-details {
         flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
     }
 
     .collection-title {
-        color: #d4c4e8;
-        font-size: 2.2rem;
-        font-weight: 600;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        background: linear-gradient(45deg, #6b48ff, #a88bff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
-    .collection-description,
+    .collection-description {
+        color: #b19cd9;
+        font-size: 0.95rem;
+        margin: 0.5rem 0;
+        max-height: 48px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
     .collection-meta {
         color: #b19cd9;
-        margin: 0.25rem 0;
+        font-size: 0.9rem;
+        margin: 0;
     }
 
-    .collection-meta span {
-        color: #d4c4e8;
-        font-weight: 500;
+        .collection-meta span {
+            color: #e0d8f3;
+            font-weight: 500;
+        }
+
+    .collection-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
     }
+
+    .btn-play-custom {
+        background-color: #6f42c1;
+        border-color: #6f42c1;
+        color: #fff;
+    }
+
+        .btn-play-custom:hover {
+            background-color: #5936a1;
+            border-color: #5936a1;
+            color: #fff;
+        }
 
     .empty-message {
-        text-align: center;
-        background: linear-gradient(90deg, #2a2a40, #3f3f5f);
+        background: #2a2a40;
         padding: 2rem;
         color: #b19cd9;
         font-size: 1.1rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        margin: 2rem auto;
+        max-width: 500px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .song-table {
         width: 100%;
-        border-collapse: collapse;
-        margin-top: 1rem;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: #2a2a40;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
-    .song-table thead {
-        color: #b19cd9;
-        text-align: left;
-        font-weight: 500;
-    }
+        .song-table thead {
+            background: #3a3a5a;
+            color: #e0d8f3;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
 
-    .song-table th, .song-table td {
-        padding: 0.75rem;
-        border-bottom: 1px solid #444;
+        .song-table th,
+        .song-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            color: #e0d8f3;
+            border-bottom: 1px solid #4a4a6f;
+        }
+
+            .song-table th:last-child,
+            .song-table td:last-child {
+                text-align: right;
+            }
+
+        .song-table tbody tr {
+            transition: background-color 0.3s ease;
+        }
+
+            .song-table tbody tr:hover {
+                background-color: #4a4a6f;
+            }
+
+    .title-cell {
+        padding: 8px;
         vertical-align: middle;
     }
 
-    .song-table tbody tr:hover {
-        background-color: #3a3a5f;
-        transition: background-color 0.2s;
-    }
-
-    .title-cell {
+    .cell-wrapper {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 10px;
     }
 
-    .title-cell img {
-        width: 50px;
-        height: 50px;
+        .cell-wrapper img {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+    .title-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        line-height: 1.2;
+    }
+
+    .song-title {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #e0d8f3;
+        text-decoration: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+
+        .song-title:hover {
+            color: #a88bff;
+        }
+
+    .table-play-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        background: rgba(107, 72, 255, 0.8);
+        border-radius: 50%;
+        color: #fff;
+        font-size: 0.9rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .song-table tbody tr:hover .table-play-button {
+        opacity: 1;
+    }
+
+    .action-cell {
+        padding: 8px;
+        vertical-align: middle;
+    }
+
+    .action-wrapper {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+
+    .cover-image-preview-wrapper {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    #currentCoverImage,
+    #previewNewCoverImage {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
         border-radius: 8px;
     }
 
-    .song-title {
-        color: #d4c4e8;
-        font-weight: 500;
+        #previewNewCoverImage.d-none,
+        #currentCoverImage.d-none {
+            display: none;
+        }
+
+    /* Modal and Form Styling */
+    .modal-content {
+        background: #2a2a40;
+        border-radius: 16px;
     }
 
-    .song-table td {
-        color: #d4c4e8;
+    .form-control-dark {
+        background: #3a3a5a;
+        border: 1px solid #6b48ff;
+        color: #e0d8f3;
+        border-radius: 8px;
+        transition: all 0.3s ease;
     }
 
+        .form-control-dark:focus {
+            background: #4a4a6f;
+            border-color: #a88bff;
+            color: #fff;
+            box-shadow: 0 0 8px rgba(107, 72, 255, 0.3);
+            outline: none;
+        }
+
+    .form-label {
+        font-size: 0.9rem;
+        color: #e0d8f3;
+    }
+
+    /* Buttons */
+    .btn-outline-success,
+    .btn-outline-info,
+    .btn-outline-warning,
+    .btn-outline-secondary,
+    .btn-outline-danger,
+    .btn-outline-light {
+        border-color: #6b48ff;
+        color: #6b48ff;
+        font-size: 0.85rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-outline-success:hover {
+            background: #6b48ff;
+            color: #fff;
+        }
+
+        .btn-outline-info:hover {
+            background: #6b48ff;
+            color: #fff;
+        }
+
+    .btn-outline-warning {
+        border-color: #f5a623;
+        color: #f5a623;
+    }
+
+        .btn-outline-warning:hover {
+            background: #f5a623;
+            color: #1a1a2e;
+        }
+
+    .btn-outline-secondary {
+        border-color: #b19cd9;
+        color: #b19cd9;
+    }
+
+        .btn-outline-secondary:hover {
+            background: #b19cd9;
+            color: #1a1a2e;
+        }
+
+    .btn-outline-danger {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+
+        .btn-outline-danger:hover,
+        .btn-danger {
+            background: #dc3545;
+            color: #fff;
+        }
+
+    .btn-success {
+        background: #6b48ff;
+        border-color: #6b48ff;
+        color: #fff;
+    }
+
+        .btn-success:hover {
+            background: #5a3ce6;
+            border-color: #5a3ce6;
+        }
+
+    .btn-outline-light {
+        border-color: #6b48ff;
+        color: #e0d8f3;
+    }
+
+        .btn-outline-light:hover {
+            background: #6b48ff;
+            color: #fff;
+        }
 </style>

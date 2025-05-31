@@ -42,10 +42,12 @@ namespace mvc_baitaplon.Controllers
                 Session["username"] = account.Username;
                 Session["accountId"] = account.AccountID;
                 Session["role"] = account.Role;
+                Session["ProfileImage"] = account.ProfileImage;
+
 
                 if (account.Role == true)
                 {
-                    return RedirectToAction("Dashboard", "Index", new { area = "Admin" });
+                    return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
                 }
                 else
                 {
@@ -103,6 +105,10 @@ namespace mvc_baitaplon.Controllers
             return RedirectToAction("Login");
         }
 
-
+        public ActionResult Logout()
+        {
+            Session.Clear();
+            return RedirectToAction("Login", "Account");
+        }
     }
 }

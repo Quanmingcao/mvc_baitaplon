@@ -75,6 +75,9 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="TagLibSharp, Version=2.3.0.0, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=MSIL">
+      <HintPath>..\packages\TagLibSharp.2.3.0\lib\net462\TagLibSharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Web.Razor">
@@ -125,16 +128,21 @@
     <Content Include="Content\Styles\admin.css" />
     <Content Include="Content\Upload\Image\CoverImage\Collection\boost.jpg" />
     <Content Include="Content\Upload\Image\CoverImage\Collection\chill.jpg" />
+    <Content Include="Content\Upload\Image\CoverImage\Collection\default.jpg" />
     <Content Include="Content\Upload\Image\CoverImage\Collection\jazz.jpg" />
     <Content Include="Content\Upload\Image\CoverImage\Collection\kenricklamar.jpg" />
     <Content Include="Content\Upload\Image\CoverImage\Collection\rock.jpg" />
+    <Content Include="Content\Upload\Image\CoverImage\Song\default.jpg" />
     <Content Include="Content\Upload\Image\CoverImage\Song\luther.jpg" />
     <Content Include="Content\Upload\Image\Icon\music.png" />
     <Content Include="Content\Upload\Image\Icon\wave-sound.png" />
-    <Content Include="Content\Upload\Image\ProfileImage\defaultavatar.jpg" />
+    <Content Include="Content\Upload\Image\ProfileImage\default.jpg" />
     <Content Include="Content\Upload\Music_file\luther.mp4" />
     <Content Include="Global.asax" />
+    <Content Include="JS\Follow.js" />
+    <Content Include="JS\Like.js" />
     <Content Include="JS\MusicPlayer.js" />
+    <Content Include="JS\Search.js" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -153,12 +161,14 @@
     <Compile Include="Areas\Admin\Controllers\SongsController.cs" />
     <Compile Include="Areas\Admin\Controllers\UserController.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\FollowsController.cs" />
     <Compile Include="Controllers\LibraryController.cs" />
-    <Compile Include="Controllers\CollectionsUserController.cs" />
+    <Compile Include="Controllers\CollectionController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LikesController.cs" />
     <Compile Include="Controllers\ListenHistorysController.cs" />
-    <Compile Include="Controllers\ReportforuserController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
+    <Compile Include="Controllers\SearchController.cs" />
     <Compile Include="Controllers\SongsController.cs" />
     <Compile Include="Controllers\UserProfileController.cs" />
     <Compile Include="Global.asax.cs">
@@ -176,8 +186,10 @@
     <Compile Include="Models\ListeningHistory.cs" />
     <Compile Include="Models\Model_Music.cs" />
     <Compile Include="Models\Model_View\AccountViewModel.cs" />
-    <Compile Include="Models\Model_View\CollectionViewModel.cs" />
-    <Compile Include="Models\Model_View\SongViewModel.cs" />
+    <Compile Include="Models\Model_View\CollectionDetailViewModel.cs" />
+    <Compile Include="Models\Model_View\HomePageViewModel.cs" />
+    <Compile Include="Models\Model_View\SearchResultViewModel.cs" />
+    <Compile Include="Models\Model_View\SongLikeViewModel.cs" />
     <Compile Include="Models\Model_View\SongWithGenreViewModel.cs" />
     <Compile Include="Models\Report.cs" />
     <Compile Include="Models\Song.cs" />
@@ -228,12 +240,16 @@
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
-    <Content Include="Views\CollectionsUser\Index.cshtml" />
+    <Content Include="Views\Collection\Index.cshtml" />
     <Content Include="Views\Library\Index.cshtml" />
     <Content Include="Views\Shared\_MusicPlayer.cshtml" />
     <Content Include="Views\Reportforuser\Submit.cshtml" />
     <Content Include="Views\Songs\Index.cshtml" />
     <Content Include="Views\UserProfile\Index.cshtml" />
+    <Content Include="Views\ListenHistorys\Index.cshtml" />
+    <Content Include="Views\Collection\AddCollection.cshtml" />
+    <Content Include="Views\Songs\AddSong.cshtml" />
+    <Content Include="Views\Search\Index.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -247,9 +263,8 @@
     <Folder Include="Areas\Admin\Views\Account\" />
     <Folder Include="Areas\Admin\Views\Admin\" />
     <Folder Include="Areas\Admin\Views\Artists\" />
-    <Folder Include="Views\CollectionLibrary\" />
+    <Folder Include="Views\Follows\" />
     <Folder Include="Views\Likes\" />
-    <Folder Include="Views\ListenHistorys\" />
     <Folder Include="Views\User\" />
   </ItemGroup>
   <PropertyGroup>

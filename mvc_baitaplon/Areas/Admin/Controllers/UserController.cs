@@ -16,7 +16,7 @@ namespace mvc_baitaplon.Areas.Admin.Controllers
         private Model_Music db = new Model_Music();
         public ActionResult Index(int? page,string searchString)
         {
-            int pageSize = 2;
+            int pageSize = 10;
             int pageNumber = (page ?? 1);
 
             var users = db.Accounts

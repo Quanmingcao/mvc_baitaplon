@@ -15,7 +15,7 @@ namespace mvc_baitaplon.Areas.Admin.Controllers
         public ActionResult Index(int? page,string searchString)
         {   
             var genres = db.Genres.OrderBy(g => g.GenreID).AsQueryable();
-            int pageSize = 2;
+            int pageSize = 10;
             int pageNumber = (page ?? 1);
 
             if (!String.IsNullOrEmpty(searchString))

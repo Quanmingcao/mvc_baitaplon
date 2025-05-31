@@ -1,33 +1,32 @@
-﻿@model IEnumerable<mvc_baitaplon.Models.Song>
+﻿@model mvc_baitaplon.Models.Model_View.HomePageViewModel
 
 @{
     ViewBag.Title = "Trang chủ";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <div class="container-fluid p-0">
-    <!-- Top Songs Section -->
     <div class="top-songs-section mb-5">
         <h3 class="section-title">Top bài hát nhiều lượt xem</h3>
         <div class="song-list-container">
             <div class="song-list">
-                @foreach (var song in Model.OrderByDescending(s => s.Views).Take(10))
+                @foreach (var song in Model.TopSongs)
                 {
                     <div class="song-card">
-                        <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)"
-                             alt="Ảnh bìa bài hát"
-                             onerror="this.onerror=null;this.src='@Url.Content("~/Content/Upload/Image/CoverImage/Song/placeholder.jpg")';"
-                             class="song-cover" />
-
-                        <a href="javascript:void(0);"
-                           class="card-play-button"
-                           onclick="playSong('@song.Title', '@Url.Content("~/Content/Upload/Music_file/" + song.FilePath)','@song.SongID', '@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)',' @song.Account.Username','@song.AccountID')"
-                           title="Phát bài hát">
-                            <i class="fas fa-play"></i>
-                        </a>
-
+                        <div class="song-image-container">
+                            <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)"
+                                 alt="Ảnh bìa bài hát"
+                                 onerror="this.onerror=null;this.src='@Url.Content("~/Content/Upload/Image/CoverImage/Song/placeholder.jpg")';"
+                                 class="song-cover" />
+                            <a href="javascript:void(0);"
+                               class="card-play-button"
+                               onclick="playSong('@song.Title', '@Url.Content("~/Content/Upload/Music_file/" + song.FilePath)', '@song.SongID', '@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)', '@song.Account.Username', '@song.AccountID')"
+                               title="Phát bài hát">
+                                <i class="fas fa-play"></i>
+                            </a>
+                        </div>
                         <div class="song-info">
                             <span class="song-title">@song.Title</span>
-                            <span class="song-title" style="font-size: 10px">@song.Account.Username</span>
+                            <span class="song-artist">@song.Account.Username</span>
                         </div>
                     </div>
                 }
@@ -37,53 +36,95 @@
 
     <h2 class="section-title mt-5">Danh sách bài hát mới</h2>
     <div class="new-songs-grid">
-        @foreach (var song in Model.OrderByDescending(s => s.UploadDate).Take(12))
+        @foreach (var song in Model.NewSongs)
         {
             <div class="song-item-card">
-                <a href="@Url.Action("Details", "Songs", new { id = song.SongID })" class="song-image-link">
-                    <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)"
-                         alt="Ảnh bìa bài hát"
-                         onerror="this.onerror=null;this.src='@Url.Content("~/images/ImagesSong/plhld.jpg")';"
-                         style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px;" />
-                </a>
+                <div class="song-image-container">
+                        <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)"
+                             alt="Ảnh bìa bài hát"
+                             onerror="this.onerror=null;this.src='@Url.Content("~/images/ImagesSong/plhld.jpg")';"
+                             class="song-image" />
+                    <a href="javascript:void(0);"
+                       class="card-play-button"
+                       onclick="playSong('@song.Title', '@Url.Content("~/Content/Upload/Music_file/" + song.FilePath)', '@song.SongID', '@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)', '@song.Account.Username', '@song.AccountID')"
+                       title="Phát bài hát">
+                        <i class="fas fa-play"></i>
+                    </a>
+                </div>
                 <div class="song-details">
                     <h4 class="song-title">
-                        <a href="@Url.Action("Details", "Home", new { id = song.SongID })" style="text-decoration:none; color:inherit;">
                             @song.Title
-                        </a>
                     </h4>
-                    <p class="song-meta">Người đăng: <span>@song.Account.Username</span></p>
-                    <p class="song-meta">Lượt xem: <span>@song.Views</span></p>
+                    <p class="song-meta"><span>@song.Account.Username</span></p>
                 </div>
             </div>
         }
     </div>
-    @Html.Partial("_MusicPlayer")
+
+    <h2 class="section-title mt-5">Nghe gần đây</h2>
+    @if (Model.RecentlyPlayed != null && Model.RecentlyPlayed.Any())
+    {
+        <div class="recently-played-grid">
+            @foreach (var item in Model.RecentlyPlayed)
+            {
+                var song = item.Song;
+                <div class="song-item-card">
+                    <div class="song-image-container">
+                        <a href="@Url.Action("Details", "Songs", new { id = song.SongID })" class="song-image-link">
+                            <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)"
+                                 alt="Ảnh bìa bài hát"
+                                 onerror="this.onerror=null;this.src='@Url.Content("~/images/ImagesSong/plhld.jpg")';"
+                                 class="song-image" />
+                        </a>
+                        <a href="javascript:void(0);"
+                           class="card-play-button"
+                           onclick="playSong('@song.Title', '@Url.Content("~/Content/Upload/Music_file/" + song.FilePath)', '@song.SongID', '@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)', '@song.Account.Username', '@song.AccountID')"
+                           title="Phát bài hát">
+                            <i class="fas fa-play"></i>
+                        </a>
+                    </div>
+                    <div class="song-details">
+                        <h4 class="song-title">
+                                @song.Title
+                        </h4>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-message">
+            <i class="fas fa-headphones fa-2x mb-2"></i>
+            <p>Chưa có bài hát nào được nghe gần đây.</p>
+            <a href="@Url.Action("Index", "Songs")" class="btn btn-outline-light btn-sm">Khám phá bài hát</a>
+        </div>
+    }
 
 </div>
+    @Html.Partial("_MusicPlayer")
 
 <style>
     .container-fluid {
         padding: 0 2rem;
     }
 
-    .top-songs-section {
-        margin-top: 80px;
-    }
-
     .section-title {
-        color: #d4c4e8;
-        font-size: 1.8rem;
-        font-weight: 600;
+        font-size: 1.9rem;
+        font-weight: 700;
         margin-bottom: 1.5rem;
-        border-left: 5px solid #6b48ff;
         padding-left: 1rem;
+        border-left: 5px solid #6b48ff;
+        letter-spacing: 0.5px;
+        background: linear-gradient(45deg, #6b48ff, #a88bff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
     .song-list-container {
         overflow-x: auto;
         overflow-y: hidden;
-        padding: 0.5rem;
+        padding: 0.5rem 0;
         scrollbar-width: thin;
         scrollbar-color: #6b48ff #2a2a40;
     }
@@ -94,6 +135,7 @@
 
         .song-list-container::-webkit-scrollbar-track {
             background: #2a2a40;
+            border-radius: 4px;
         }
 
         .song-list-container::-webkit-scrollbar-thumb {
@@ -101,160 +143,114 @@
             border-radius: 4px;
         }
 
-            .song-list-container::-webkit-scrollbar-thumb:hover {
-                background: #5a3ce6;
-            }
+        .song-list-container::-webkit-scrollbar-thumb:hover {
+            background: #8b6bff;
+        }
+
+    .song-list {
+        display: flex;
+        gap: 1.5rem;
+        width: max-content;
+        padding: 0.5rem;
+    }
+
+    .song-card {
+        background: #2a2a40;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        width: 240px;
+        height: 280px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .song-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 6px 16px rgba(107, 72, 255, 0.4);
+        }
 
     .song-image-container {
         position: relative;
-        overflow: hidden;
-        border-radius: 10px;
         width: 100%;
-        height: 160px;
+        height: 180px;
+        overflow: hidden;
     }
 
-    .play-button {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 2rem;
-        color: white;
-        background-color: rgba(0, 0, 0, 0.5);
-        padding: 0.7rem;
-        border-radius: 50%;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        text-decoration: none;
-        z-index: 10;
-    }
-
-    .song-image-container:hover .play-button {
-        opacity: 1;
-    }
-
-    .song-cover {
+    .song-cover, .song-image {
         width: 100%;
         height: 100%;
         object-fit: cover;
         transition: transform 0.3s ease;
     }
 
-    .song-image-container:hover .song-cover {
+    .song-card:hover .song-cover, .song-item-card:hover .song-image {
         transform: scale(1.05);
     }
-
-
-    .song-list {
-        display: flex;
-        gap: 1.5rem;
-        width: max-content;
-    }
-
-    .song-card {
-        position: relative;
-        background: linear-gradient(90deg, #2a2a40, #3f3f5f);
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        overflow: hidden;
-        width: 250px;
-        height: 250px;
-        transition: transform 0.3s, box-shadow 0.3s;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-    }
-
-        .song-card img {
-            border-radius: 10px;
-            height: 200px
-        }
-
-        .song-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 12px rgba(107, 72, 255, 0.3);
-        }
 
     .card-play-button {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 3rem;
-        color: #6b48ff;
-        border: 5px solid #6b48ff;
-        padding: 0;
-        border-radius: 50%;
-        text-decoration: none;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        z-index: 5;
-        width: 5rem;
-        height: 5rem;
+        width: 50px;
+        height: 50px;
         display: flex;
-        justify-content: center;
         align-items: center;
-        background-color: transparent;
+        justify-content: center;
+        background: rgba(107, 72, 255, 0.8);
+        border-radius: 50%;
+        color: #fff;
+        font-size: 1.5rem;
+        opacity: 0;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        z-index: 10;
     }
 
-    .song-card:hover .card-play-button {
+    .song-card:hover .card-play-button, .song-item-card:hover .card-play-button {
         opacity: 1;
-    }
-
-
-
-    .song-cover {
-        width: 100%;
-        height: 160px;
-        object-fit: cover;
-        padding: 10px;
-        border-radius: 10px;
+        transform: translate(-50%, -50%) scale(1.1);
     }
 
     .song-info {
-        padding: 10px;
+        padding: 1rem;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-        height: 100%;
+        gap: 0.5rem;
     }
 
     .song-title {
-        color: #d4c4e8;
+        color: #e0d8f3;
         font-size: 1.1rem;
-        font-weight: 500;
-        white-space: normal;
-        word-break: break-word;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .song-views {
-        background-color: #6b48ff;
-        color: white;
-        padding: 0.4rem 0.8rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
+    .song-artist {
+        color: #b19cd9;
+        font-size: 0.9rem;
         font-weight: 500;
-        align-self: flex-start;
     }
 
-    .new-songs-grid {
+    .new-songs-grid, .recently-played-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1.5rem;
         margin-bottom: 2rem;
     }
 
     .song-item-card {
-        background: linear-gradient(90deg, #2a2a40, #3f3f5f);
-        border-radius: 12px;
+        background: #2a2a40;
+        border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
         .song-item-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 12px rgba(107, 72, 255, 0.3);
+            transform: translateY(-8px);
+            box-shadow: 0 6px 16px rgba(107, 72, 255, 0.4);
         }
 
     .song-image-link {
@@ -262,18 +258,69 @@
         text-decoration: none;
     }
 
+    .song-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 16px 16px 0 0;
+    }
+
     .song-details {
         padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
     }
+
+        .song-details .song-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #e0d8f3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
     .song-meta {
         color: #b19cd9;
         font-size: 0.9rem;
-        margin: 0.25rem 0;
+        margin: 0;
     }
 
-        .song-meta span {
-            color: #d4c4e8;
-            font-weight: 500;
-        }
+    .song-meta span {
+        color: #e0d8f3;
+        font-weight: 500;
+    }
+
+    .empty-message {
+        background: #2a2a40;
+        padding: 2rem;
+        color: #b19cd9;
+        font-size: 1.1rem;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        margin: 2rem auto;
+        max-width: 500px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .empty-message .btn-outline-light {
+        border-color: #6b48ff;
+        color: #6b48ff;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .empty-message .btn-outline-light:hover {
+        background-color: #6b48ff;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(107, 72, 255, 0.3);
+    }
 </style>

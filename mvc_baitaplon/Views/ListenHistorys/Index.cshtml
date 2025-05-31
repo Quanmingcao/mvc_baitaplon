@@ -1,0 +1,129 @@
+﻿@model IEnumerable<mvc_baitaplon.Models.Model_View.SongLikeViewModel>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid p-0">
+    @if (!Model.Any())
+    {
+        <div class="empty-message">Không có bài hát nào trong lịch sử nghe.</div>
+    }
+    else
+    { 
+        <h2 class="section-title mt-5">Lịch sử nghe</h2>
+        <table class="song-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tiêu đề</th>
+                    <th>Nghệ sĩ</th>
+                    <th>Lượt phát</th>
+                    <th>Thời lượng</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var index = 1;
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@index</td>
+                            <td class="title-cell">
+                                <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + item.Song.CoverImage)" alt="Cover" />
+                                <div class="title-info">
+                                    <span class="song-title">@item.Song.Title</span>
+                                </div>
+                            </td>
+                            <td>@item.Song.Account.Username</td>
+                            <td>@item.Song.Views.ToString("N0")</td>
+                            <td>@TimeSpan.FromSeconds((double)(item.Song.Duration ?? 0)).ToString(@"mm\:ss")</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button type="button" class="btn btn-sm btn-play-custom" onclick="playSong('@item.Song.Title', '@Url.Content("~/Content/Upload/Music_file/" + item.Song.FilePath)','@item.Song.SongID', '@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + item.Song.CoverImage)',' @item.Song.Account.Username','@item.Song.AccountID')">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+
+                                    <button class="btn btn-sm like-btn @(item.IsLiked ? "btn-danger" : "btn-outline-danger")"
+                                            data-song-id="@item.Song.SongID">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+
+                                    <button class="btn btn-outline-warning btn-sm"
+                                            title="Báo cáo"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#reportSongModal"
+                                            data-songid="@item.Song.SongID">
+                                        <i class="fas fa-flag"></i>
+                                    </button>
+                                </div>
+
+                            </td>
+                        </tr>
+                        index++;
+                    }
+                }
+            </tbody>
+        </table>
+    }
+</div>
+@Html.Partial("_MusicPlayer")
+
+<style>
+
+    .song-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+        .song-table thead {
+            color: #b19cd9;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .song-table th,
+        .song-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #444;
+            vertical-align: middle;
+            color: #d4c4e8;
+        }
+
+        .song-table tbody tr:hover {
+            background-color: #3a3a5f;
+            transition: background-color 0.2s;
+        }
+
+    .title-cell {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+        .title-cell img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+    .song-title {
+        font-weight: 500;
+    }
+
+    .btn-play-custom {
+        background-color: #6f42c1;
+        border-color: #6f42c1;
+        color: #fff;
+    }
+
+    .btn-play-custom:hover {
+        background-color: #5936a1;
+        border-color: #5936a1;
+        color: #fff;
+    }
+</style>
