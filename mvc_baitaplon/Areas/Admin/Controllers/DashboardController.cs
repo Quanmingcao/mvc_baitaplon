@@ -11,6 +11,7 @@ namespace mvc_baitaplon.Areas.Admin.Controllers
     {   
         private Model_Music db=  new Model_Music();
         // GET: Admin/Dashboard
+        [CustomAuthorize]
         public ActionResult Index()
         {
             var totalUsers = db.Accounts.Count(a => a.Role == false);

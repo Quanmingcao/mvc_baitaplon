@@ -183,6 +183,11 @@
                 <div class="invalid-feedback">Vui lòng nhập mật khẩu.</div>
             </div>
             <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i>Đăng nhập</button>
+            @Html.ActionLink("Đăng ký", "Register", "Account", null, new { @class = "btn btn-outline-light mt-3 w-100" })
+
+
+
+
             if (!string.IsNullOrEmpty(ViewBag.Error as string))
             {
                 <p class="error-message">@ViewBag.Error</p>

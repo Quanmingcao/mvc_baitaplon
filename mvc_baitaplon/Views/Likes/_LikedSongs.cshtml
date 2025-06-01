@@ -1,0 +1,92 @@
+﻿@model List<mvc_baitaplon.Models.Model_View.SongLikeViewModel>
+
+<div class="liked-songs-section">
+    <h3 class="text-light">Danh sách bài hát yêu thích</h3>
+    <div class="recently-played-grid">
+        @foreach (var item in Model)
+        {
+            var song = item.Song;
+            <div class="song-item-card">
+                <div class="song-image-container">
+                    <a href="@Url.Action("Details", "Songs", new { id = song.SongID })" class="song-image-link">
+                        <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)"
+                             alt="Ảnh bìa bài hát"
+                             onerror="this.onerror=null;this.src='@Url.Content("~/Image/CoverImage/Song/luther.jpg")';"
+                     
+                        class="song-image" />
+                    </a>
+                    <a href="javascript:void(0);"
+                       class="card-play-button"
+                       onclick="playSong('@song.Title', '@Url.Content("~/Content/Upload/Music_file/" + song.FilePath)', '@song.SongID', '@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)', '@song.Account.Username', '@song.AccountID')"
+                       title="Phát bài hát">
+                        <i class="fas fa-play"></i>
+                    </a>
+                </div>
+                <div class="song-details">
+                    <h4 class="song-title">
+                        @song.Title
+                    </h4>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .liked-songs-section .recently-played-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        padding: 15px 0;
+    }
+
+    .song-item-card {
+        position: relative;
+    }
+
+    .song-image-container {
+        position: relative;
+    }
+
+    .song-image-link {
+        display: block;
+    }
+
+    .song-image {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .card-play-button {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .song-item-card:hover .card-play-button {
+        opacity: 1;
+    }
+
+    .song-details {
+        margin-top: 8px;
+    }
+
+    .song-title {
+        font-size: 14px;
+        color: #fff;
+        margin: 0;
+    }
+</style>

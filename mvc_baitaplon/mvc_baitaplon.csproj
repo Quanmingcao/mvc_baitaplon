@@ -250,6 +250,7 @@
     <Content Include="Views\Collection\AddCollection.cshtml" />
     <Content Include="Views\Songs\AddSong.cshtml" />
     <Content Include="Views\Search\Index.cshtml" />
+    <Content Include="Views\Likes\_LikedSongs.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -264,7 +265,6 @@
     <Folder Include="Areas\Admin\Views\Admin\" />
     <Folder Include="Areas\Admin\Views\Artists\" />
     <Folder Include="Views\Follows\" />
-    <Folder Include="Views\Likes\" />
     <Folder Include="Views\User\" />
   </ItemGroup>
   <PropertyGroup>

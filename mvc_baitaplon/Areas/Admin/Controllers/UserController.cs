@@ -14,6 +14,7 @@ namespace mvc_baitaplon.Areas.Admin.Controllers
     {   
 
         private Model_Music db = new Model_Music();
+        [CustomAuthorize]
         public ActionResult Index(int? page,string searchString)
         {
             int pageSize = 10;

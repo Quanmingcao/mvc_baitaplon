@@ -48,7 +48,7 @@
                         <td><a href="mailto:@user.Email" style="color: #ffd700;">@user.Email</a></td>
                         <td>@(user.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A")</td>
                         <td>
-                            @using (Html.BeginForm("ChangeRole", "Accounts", FormMethod.Post, new { @class = "d-inline" }))
+                            @using (Html.BeginForm("ToggleRole", "User", FormMethod.Post, new { @class = "d-inline" }))
                             {
                                 @Html.Hidden("id", user.AccountID)
                                 @Html.DropDownList("role", new SelectList(new[] {

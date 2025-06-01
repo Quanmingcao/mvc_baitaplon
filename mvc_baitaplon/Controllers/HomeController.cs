@@ -14,7 +14,6 @@ namespace mvc_baitaplon.Controllers
     {
         private Model_Music db = new Model_Music();
 
-        [CustomAuthorize]
         public ActionResult Index()
         {
             var topSongs = db.Songs

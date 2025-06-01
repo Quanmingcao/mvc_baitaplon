@@ -38,7 +38,7 @@
                                 </div>
                             </td>
                             <td>@item.Song.Account.Username</td>
-                            <td>@item.Song.Views.ToString("N0")</td>
+                            <td>@item.Song.Views</td>
                             <td>@TimeSpan.FromSeconds((double)(item.Song.Duration ?? 0)).ToString(@"mm\:ss")</td>
                             <td>
                                 <div class="action-buttons">

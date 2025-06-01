@@ -2,12 +2,34 @@
 using System.Linq;
 using System.Web.Mvc;
 using mvc_baitaplon.Models;
+using mvc_baitaplon.Models.Model_View;
 
 namespace mvc_baitaplon.Controllers
 {
     public class LikesController : Controller
     {
         private Model_Music db = new Model_Music();
+        public ActionResult LikedSongs()
+        {
+            if (Session["accountId"] == null)
+                return RedirectToAction("Login", "Login");
+
+            int accountId = (int)Session["accountId"];
+
+            // Lấy danh sách bài hát user đã like, loại bỏ bài private
+            var likedSongs = db.Likes
+                .Where(l => l.AccountID == accountId)
+                .OrderByDescending(l => l.LikedAt)
+                .Select(l => new SongLikeViewModel
+                {
+                    Song = l.Song,
+                    IsLiked = true // vì đây là danh sách liked nên luôn true
+                })
+                .Where(vm => vm.Song.IsPublic == true || vm.Song.AccountID == accountId) // Hiển thị nếu public hoặc của chính user
+                .ToList();
+
+            return PartialView("_LikedSongs", likedSongs);
+        }
 
         [HttpPost]
         public JsonResult ToggleLike(int songId)

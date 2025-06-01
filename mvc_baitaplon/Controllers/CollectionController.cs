@@ -90,7 +90,7 @@ namespace mvc_baitaplon.Controllers
                 collection.reportcount = 0;
                 db.Collections.Add(collection);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "Songs", new { id = collection.CollectionID });
             }
 
             LoadDropdownData();

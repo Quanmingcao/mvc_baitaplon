@@ -94,7 +94,7 @@ namespace mvc_baitaplon.Controllers
             db.SaveChanges();
 
             TempData["SuccessMessage"] = "Báo cáo bài hát đã được gửi.";
-            return RedirectToAction("Detail", "Song", new { id = songId });
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]

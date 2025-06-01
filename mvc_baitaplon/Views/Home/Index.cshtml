@@ -40,10 +40,10 @@
         {
             <div class="song-item-card">
                 <div class="song-image-container">
-                        <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)"
-                             alt="Ảnh bìa bài hát"
-                             onerror="this.onerror=null;this.src='@Url.Content("~/images/ImagesSong/plhld.jpg")';"
-                             class="song-image" />
+                    <img src="@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)"
+                         alt="Ảnh bìa bài hát"
+                         onerror="this.onerror=null;this.src='@Url.Content("~/images/ImagesSong/plhld.jpg")';"
+                         class="song-image" />
                     <a href="javascript:void(0);"
                        class="card-play-button"
                        onclick="playSong('@song.Title', '@Url.Content("~/Content/Upload/Music_file/" + song.FilePath)', '@song.SongID', '@Url.Content("~/Content/Upload/Image/CoverImage/Song/" + song.CoverImage)', '@song.Account.Username', '@song.AccountID')"
@@ -53,7 +53,7 @@
                 </div>
                 <div class="song-details">
                     <h4 class="song-title">
-                            @song.Title
+                        @song.Title
                     </h4>
                     <p class="song-meta"><span>@song.Account.Username</span></p>
                 </div>
@@ -85,7 +85,7 @@
                     </div>
                     <div class="song-details">
                         <h4 class="song-title">
-                                @song.Title
+                            @song.Title
                         </h4>
                     </div>
                 </div>
@@ -100,6 +100,9 @@
             <a href="@Url.Action("Index", "Songs")" class="btn btn-outline-light btn-sm">Khám phá bài hát</a>
         </div>
     }
+    @Html.Action("LikedSongs", "Likes")
+
+
 
 </div>
     @Html.Partial("_MusicPlayer")

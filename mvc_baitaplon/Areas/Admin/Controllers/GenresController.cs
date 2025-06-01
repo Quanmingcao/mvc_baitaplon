@@ -12,6 +12,7 @@ namespace mvc_baitaplon.Areas.Admin.Controllers
 
         private Model_Music db = new Model_Music();
         // GET: Admin/Genres
+        [CustomAuthorize]
         public ActionResult Index(int? page,string searchString)
         {   
             var genres = db.Genres.OrderBy(g => g.GenreID).AsQueryable();

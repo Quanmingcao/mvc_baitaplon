@@ -12,6 +12,7 @@ namespace mvc_baitaplon.Areas.Admin.Controllers
     {   
 
         private Model_Music db = new Model_Music();
+        [CustomAuthorize]
         public ActionResult Index(int? page,string searchString)
         {
             var reports = db.Reports.Where(r => r.Status == "Chưa xem xét").OrderBy(r => r.ReporterID)

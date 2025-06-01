@@ -9,7 +9,7 @@ namespace mvc_baitaplon.Areas.Admin.Controllers
     public class CollectionsController : Controller
     {
         private Model_Music db = new Model_Music();
-
+        [CustomAuthorize]
         public ActionResult Index(string searchString, int? page)
         {
             var collections = db.Collections
